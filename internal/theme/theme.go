@@ -3,8 +3,13 @@
 // Tokyo Night 为主题库首个成员（≈设计稿 A 的形态）。
 package theme
 
+import "fmt"
+
 // RGB 是 truecolor 颜色。
 type RGB struct{ R, G, B uint8 }
+
+// Hex 返回 #rrggbb 形式（Web 配置页用）。
+func (c RGB) Hex() string { return fmt.Sprintf("#%02x%02x%02x", c.R, c.G, c.B) }
 
 // Theme 定义一套配色：胶囊统一底色 + 按语义类别的前景色 + 预警色。
 type Theme struct {

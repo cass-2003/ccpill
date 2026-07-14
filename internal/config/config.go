@@ -11,11 +11,11 @@ import (
 )
 
 type Config struct {
-	Version int        `toml:"version"`
-	Theme   string     `toml:"theme"`
-	Pills   bool       `toml:"pills"`    // 胶囊背景开关（设计定案：可一键关闭）
-	IconSet string     `toml:"icon_set"` // nerd | unicode | ascii
-	Lines   [][]string `toml:"lines"`    // 1-3 行，每行有序 segment ID 列表
+	Version int        `toml:"version" json:"version"`
+	Theme   string     `toml:"theme" json:"theme"`
+	Pills   bool       `toml:"pills" json:"pills"`       // 胶囊背景开关（设计定案：可一键关闭）
+	IconSet string     `toml:"icon_set" json:"icon_set"` // nerd | unicode | ascii
+	Lines   [][]string `toml:"lines" json:"lines"`       // 1-3 行，每行有序 segment ID 列表
 }
 
 // Default 返回默认配置（设计稿 C 双行默认布局）。

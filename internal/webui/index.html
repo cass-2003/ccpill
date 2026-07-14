@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ccpill 配置中心</title>
+<style>
+  :root {
+    --base:#1e1e2e; --mantle:#181825; --crust:#11111b; --surface0:#313244; --surface1:#45475a;
+    --text:#cdd6f4; --subtext:#a6adc8; --overlay:#6c7086;
+    --mauve:#cba6f7; --blue:#89b4fa; --green:#a6e3a1; --peach:#fab387; --pink:#f5c2e7; --red:#f38ba8; --teal:#94e2d5;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--base); color:var(--text); font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; min-height:100vh; }
+  header { padding:18px 28px; background:var(--mantle); border-bottom:1px solid var(--surface0); display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:18px; }
+  header .tag { font-size:11px; background:var(--surface0); color:var(--mauve); padding:2px 10px; border-radius:12px; }
+  main { max-width:1100px; margin:0 auto; padding:26px 28px 60px; }
+  .card { background:var(--mantle); border:1px solid var(--surface0); border-radius:12px; padding:18px 20px; margin-bottom:18px; }
+  .card h2 { font-size:14px; color:var(--subtext); margin-bottom:14px; font-weight:600; letter-spacing:.5px; }
+  /* 预览区 */
+  #preview { background:var(--crust); border-radius:10px; padding:14px 16px; font-family:"Cascadia Code",Consolas,monospace; font-size:13.5px; overflow-x:auto; }
+  #preview .pline { display:flex; gap:8px; align-items:center; padding:4px 0; white-space:nowrap; }
+  #preview .pl { border-radius:20px; padding:0 10px; line-height:1.55; font-size:12.5px; }
+  #preview .noplbar { display:inline-flex; gap:0; }
+  #srcnote { font-size:11.5px; color:var(--overlay); margin-top:8px; }
+  /* 控制区 */
+  .controls { display:flex; gap:22px; flex-wrap:wrap; }
+  .ctl { display:flex; flex-direction:column; gap:7px; }
+  .ctl label { font-size:12px; color:var(--subtext); }
+  select { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:7px 12px; font-size:13px; }
+  .toggle { display:flex; align-items:center; gap:9px; cursor:pointer; padding:6px 0; }
+  .toggle input { display:none; }
+  .knob { width:38px; height:21px; border-radius:11px; background:var(--surface1); position:relative; transition:.15s; }
+  .knob::after { content:""; position:absolute; width:15px; height:15px; border-radius:50%; background:var(--text); top:3px; left:3px; transition:.15s; }
+  .toggle input:checked + .knob { background:var(--green); }
+  .toggle input:checked + .knob::after { left:20px; background:var(--base); }
+  /* 行编辑器 */
+  .line-editor { border:1px dashed var(--surface1); border-radius:10px; min-height:46px; padding:8px 10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .line-editor.dragover { border-color:var(--mauve); background:rgba(203,166,247,.06); }
+  .line-editor .hint { color:var(--overlay); font-size:12px; }
+  .lrow { display:flex; gap:10px; align-items:flex-start; }
+  .lrow .ltag { width:44px; padding-top:14px; color:var(--overlay); font-size:12px; flex-shrink:0; }
+  .chip { background:var(--surface0); border:1px solid var(--surface1); color:var(--text); border-radius:16px; padding:4px 13px; font-size:12.5px; cursor:grab; user-select:none; }
+  .chip:active { cursor:grabbing; }
+  .chip.ghost { opacity:.35; }
+  #palette { display:flex; gap:8px; flex-wrap:wrap; }
+  #palette .chip { border-style:dashed; color:var(--subtext); }
+  .note { font-size:11.5px; color:var(--overlay); margin-top:6px; }
+  /* 保存 */
+  .savebar { display:flex; align-items:center; gap:14px; }
+  button#save { background:var(--mauve); color:var(--base); font-weight:700; border:none; border-radius:9px; padding:10px 26px; font-size:14px; cursor:pointer; }
+  button#save:hover { filter:brightness(1.1); }
+  #savemsg { font-size:12.5px; color:var(--green); opacity:0; transition:.3s; }
+</style>
+</head>
+<body>
+<header><h1>💊 ccpill 配置中心</h1><span class="tag">localhost · 数据不出本机</span></header>
+<main>
+  <div class="card">
+    <h2>实时预览</h2>
+    <div id="preview"></div>
+    <div id="srcnote"></div>
+  </div>
+
+  <div class="card">
+    <h2>外观</h2>
+    <div class="controls">
+      <div class="ctl"><label>主题</label><select id="theme"></select></div>
+      <div class="ctl"><label>图标集</label>
+        <select id="iconset">
+          <option value="nerd">Nerd Font 满血版</option>
+          <option value="unicode">Unicode 安全版</option>
+          <option value="ascii">纯 ASCII 版</option>
+        </select></div>
+      <div class="ctl"><label>胶囊背景</label>
+        <label class="toggle"><input type="checkbox" id="pills"><span class="knob"></span><span id="pillstate"></span></label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>布局编排 —— 拖动胶囊在行间移动；拖回下方仓库即停用（1-3 行）</h2>
+    <div id="lines"></div>
+    <div style="margin:14px 0 6px; color:var(--subtext); font-size:12px;">未启用的 segment 仓库</div>
+    <div class="line-editor" id="palette"></div>
+    <div class="note">segment 中文名：model=模型/思考等级 · context=上下文占用 · cost=会话成本 · git=Git 状态 · dir=当前目录</div>
+  </div>
+
+  <div class="card savebar">
+    <button id="save">保存生效</button>
+    <span id="savemsg"></span>
+    <span class="note">保存后 Claude Code 下次刷新状态栏即生效，无需重启</span>
+  </div>
+</main>
+
+<script>
+let cfg = null, allSegs = [], dragging = null;
+
+async function api(path, body) {
+  const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} : {});
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function drawPreview(p) {
+  const box = document.getElementById('preview');
+  box.innerHTML = '';
+  const t = p.theme;
+  p.lines.forEach(line => {
+    const div = document.createElement('div');
+    div.className = 'pline';
+    if (!line.length) return;
+    line.forEach((pill, i) => {
+      const s = document.createElement('span');
+      s.textContent = pill.text;
+      if (cfg.pills) {
+        s.className = 'pl';
+        s.style.background = pill.warn ? t.warn : t.pill_bg;
+        s.style.color = pill.warn ? t.warn_fg : pill.fg;
+      } else {
+        s.style.color = pill.warn ? t.warn : pill.fg;
+        if (i > 0) {
+          const sep = document.createElement('span');
+          sep.textContent = '│';
+          sep.style.color = t.sep;
+          div.appendChild(sep);
+        }
+      }
+      div.appendChild(s);
+    });
+    box.appendChild(div);
+  });
+  document.getElementById('srcnote').textContent = p.real
+    ? '✅ 预览使用你最近一次 Claude Code 会话的真实数据'
+    : 'ℹ️ 暂无真实会话缓存（ccpill 上岗跑一次后即切换为真实数据），当前为内置样例';
+}
+
+async function refresh() {
+  drawPreview(await api('/api/preview', cfg));
+}
+
+function chip(id) {
+  const c = document.createElement('span');
+  c.className = 'chip'; c.textContent = id; c.draggable = true; c.dataset.seg = id;
+  c.addEventListener('dragstart', () => { dragging = c; setTimeout(() => c.classList.add('ghost')); });
+  c.addEventListener('dragend', () => { dragging = null; c.classList.remove('ghost'); });
+  return c;
+}
+
+function bindDrop(el) {
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); el.classList.remove('dragover');
+    if (!dragging) return;
+    const after = [...el.querySelectorAll('.chip:not(.ghost)')].find(c =>
+      e.clientX < c.getBoundingClientRect().left + c.offsetWidth / 2);
+    el.insertBefore(dragging, after || null);
+    syncFromDOM();
+  });
+}
+
+function syncFromDOM() {
+  cfg.lines = [...document.querySelectorAll('#lines .line-editor')].map(el =>
+    [...el.querySelectorAll('.chip')].map(c => c.dataset.seg));
+  while (cfg.lines.length && !cfg.lines[cfg.lines.length-1].length) cfg.lines.pop();
+  if (!cfg.lines.length) cfg.lines = [[]];
+  drawLines();
+  refresh();
+}
+
+function drawLines() {
+  const wrap = document.getElementById('lines');
+  wrap.innerHTML = '';
+  const rows = cfg.lines.slice(0, 3);
+  while (rows.length < 3 && rows.every(r => r.length)) rows.push([]); // 始终留一个空行槽（≤3）
+  rows.forEach((row, i) => {
+    const lrow = document.createElement('div'); lrow.className = 'lrow';
+    const tag = document.createElement('div'); tag.className = 'ltag'; tag.textContent = '行 ' + (i+1);
+    const ed = document.createElement('div'); ed.className = 'line-editor';
+    if (!row.length) ed.innerHTML = '<span class="hint">拖 segment 到这里</span>';
+    row.forEach(id => ed.appendChild(chip(id)));
+    bindDrop(ed);
+    lrow.append(tag, ed); wrap.appendChild(lrow);
+  });
+  const pal = document.getElementById('palette');
+  pal.innerHTML = '';
+  const used = new Set(cfg.lines.flat());
+  const idle = allSegs.filter(s => !used.has(s));
+  if (!idle.length) pal.innerHTML = '<span class="hint">全部 segment 已启用</span>';
+  idle.forEach(id => pal.appendChild(chip(id)));
+  bindDrop(pal);
+}
+
+function bindControls() {
+  const th = document.getElementById('theme'), ic = document.getElementById('iconset'), pl = document.getElementById('pills');
+  th.value = cfg.theme; ic.value = cfg.icon_set; pl.checked = cfg.pills;
+  document.getElementById('pillstate').textContent = cfg.pills ? '开' : '关';
+  th.onchange = () => { cfg.theme = th.value; refresh(); };
+  ic.onchange = () => { cfg.icon_set = ic.value; refresh(); };
+  pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开' : '关'; refresh(); };
+  document.getElementById('save').onclick = async () => {
+    const r = await api('/api/save', cfg);
+    const m = document.getElementById('savemsg');
+    m.textContent = '✅ 已保存到 ' + r.path;
+    m.style.opacity = 1;
+    setTimeout(() => m.style.opacity = 0, 3000);
+  };
+}
+
+(async () => {
+  const st = await api('/api/state');
+  cfg = st.config; allSegs = st.segments.sort();
+  const th = document.getElementById('theme');
+  st.themes.sort().forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; th.appendChild(o); });
+  bindControls();
+  drawLines();
+  drawPreview(st.preview);
+})();
+</script>
+</body>
+</html>
