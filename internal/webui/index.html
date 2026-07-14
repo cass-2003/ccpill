@@ -17,7 +17,9 @@
   header .tag { font-size:11px; background:var(--surface0); color:var(--mauve); padding:2px 10px; border-radius:12px; }
   main { max-width:1100px; margin:0 auto; padding:26px 28px 60px; }
   .card { background:var(--mantle); border:1px solid var(--surface0); border-radius:12px; padding:18px 20px; margin-bottom:18px; }
-  .card h2 { font-size:14px; color:var(--subtext); margin-bottom:14px; font-weight:600; letter-spacing:.5px; }
+  .card h2 { font-size:14px; color:var(--subtext); margin-bottom:4px; font-weight:600; letter-spacing:.5px; }
+  .card h2 .en { color:var(--overlay); font-weight:400; font-size:12px; margin-left:8px; }
+  .card .sub { font-size:11.5px; color:var(--overlay); margin-bottom:14px; line-height:1.6; }
   /* 预览区 */
   #preview { background:var(--crust); border-radius:10px; padding:14px 16px; font-family:"Cascadia Code",Consolas,monospace; font-size:13.5px; overflow-x:auto; }
   #preview .pline { display:flex; gap:8px; align-items:center; padding:4px 0; white-space:nowrap; }
@@ -44,6 +46,13 @@
   .chip { background:var(--surface0); border:1px solid var(--surface1); color:var(--text); border-radius:16px; padding:4px 13px; font-size:12.5px; cursor:grab; user-select:none; }
   .chip:active { cursor:grabbing; }
   .chip.ghost { opacity:.35; }
+  .chip .zh { color:var(--subtext); font-size:11px; margin-left:5px; }
+  /* segment 功能对照表 */
+  #legend { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:8px 18px; }
+  #legend .lg { display:flex; gap:10px; font-size:12px; line-height:1.55; padding:6px 8px; border-radius:8px; background:var(--crust); }
+  #legend .lg b { color:var(--mauve); font-family:Consolas,monospace; font-weight:600; min-width:64px; flex-shrink:0; }
+  #legend .lg .nm { color:var(--text); }
+  #legend .lg .ds { color:var(--overlay); font-size:11.5px; }
   #palette { display:flex; gap:8px; flex-wrap:wrap; }
   #palette .chip { border-style:dashed; color:var(--subtext); }
   .note { font-size:11.5px; color:var(--overlay); margin-top:6px; }
@@ -55,46 +64,80 @@
 </style>
 </head>
 <body>
-<header><h1>💊 ccpill 配置中心</h1><span class="tag">localhost · 数据不出本机</span></header>
+<header><h1>💊 ccpill 配置中心</h1><span class="tag">localhost · 数据不出本机 / data never leaves this machine</span></header>
 <main>
   <div class="card">
-    <h2>实时预览</h2>
+    <h2>实时预览<span class="en">Live Preview</span></h2>
+    <div class="sub">下方所有改动即时反映在这里，与终端渲染共用同一引擎，所见即所得。<br>Every change below renders here instantly — same engine as the terminal, WYSIWYG.</div>
     <div id="preview"></div>
     <div id="srcnote"></div>
   </div>
 
   <div class="card">
-    <h2>外观</h2>
+    <h2>外观<span class="en">Appearance</span></h2>
+    <div class="sub">主题决定整套配色；图标集按终端字体能力选择；胶囊背景关闭后退化为彩色文字 + │ 分隔。<br>Theme sets the full palette; pick an icon set your terminal font supports; turning pills off falls back to colored text with │ separators.</div>
     <div class="controls">
-      <div class="ctl"><label>主题</label><select id="theme"></select></div>
-      <div class="ctl"><label>图标集</label>
+      <div class="ctl"><label>主题 Theme</label><select id="theme"></select></div>
+      <div class="ctl"><label>图标集 Icon Set</label>
         <select id="iconset">
-          <option value="nerd">Nerd Font 满血版</option>
-          <option value="unicode">Unicode 安全版</option>
-          <option value="ascii">纯 ASCII 版</option>
+          <option value="nerd">Nerd Font 满血版 / full glyphs</option>
+          <option value="unicode">Unicode 安全版 / safe symbols</option>
+          <option value="ascii">纯 ASCII 版 / plain text</option>
         </select></div>
-      <div class="ctl"><label>胶囊背景</label>
+      <div class="ctl"><label>胶囊背景 Pill Background</label>
         <label class="toggle"><input type="checkbox" id="pills"><span class="knob"></span><span id="pillstate"></span></label></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>布局编排 —— 拖动胶囊在行间移动；拖回下方仓库即停用（1-3 行）</h2>
+    <h2>布局编排<span class="en">Layout Editor</span></h2>
+    <div class="sub">拖动胶囊在行间移动排序（最多 3 行）；拖回下方仓库即停用。悬停任意胶囊可查看功能说明。<br>Drag chips between rows to reorder (up to 3 lines); drop into the pool below to disable. Hover any chip for its description.</div>
     <div id="lines"></div>
-    <div style="margin:14px 0 6px; color:var(--subtext); font-size:12px;">未启用的 segment 仓库</div>
+    <div style="margin:14px 0 6px; color:var(--subtext); font-size:12px;">未启用的 segment 仓库 <span style="color:var(--overlay)">Idle Segment Pool</span></div>
     <div class="line-editor" id="palette"></div>
-    <div class="note">segment 中文名：model=模型/思考等级 · context=上下文占用 · cost=会话成本 · git=Git 状态 · dir=当前目录</div>
+  </div>
+
+  <div class="card">
+    <h2>Segment 功能对照表<span class="en">Segment Reference</span></h2>
+    <div class="sub">全部可用 segment 的功能说明（中英对照）。<br>What every available segment does, in both languages.</div>
+    <div id="legend"></div>
   </div>
 
   <div class="card savebar">
-    <button id="save">保存生效</button>
+    <button id="save">保存生效 Save</button>
     <span id="savemsg"></span>
-    <span class="note">保存后 Claude Code 下次刷新状态栏即生效，无需重启</span>
+    <span class="note">保存后 Claude Code 下次刷新状态栏即生效，无需重启 / Takes effect on the next statusline refresh — no restart needed.</span>
   </div>
 </main>
 
 <script>
 let cfg = null, allSegs = [], dragging = null;
+
+// segment 双语功能说明（悬停提示 + 对照表共用）
+const SEG_INFO = {
+  model:    { zh:'模型',     en:'Model',           dzh:'当前模型名 + 思考等级（think:hi）',                          den:'Current model name + thinking effort level' },
+  context:  { zh:'上下文',   en:'Context',         dzh:'上下文窗口占用进度条 + 百分比；80% 变色、90% 红警「即将压缩」', den:'Context window usage bar + %; amber at 80%, red at 90% (compaction imminent)' },
+  cost:     { zh:'会话成本', en:'Session Cost',    dzh:'本次会话累计花费（Claude Code 官方口径）',                    den:'Cumulative cost of this session (official figure from Claude Code)' },
+  today:    { zh:'今日花费', en:'Today’s Spend', dzh:'跨会话统计今日总花费；超过日预算红警',                     den:'Total spend across all sessions today; warns over daily budget' },
+  burn:     { zh:'烧钱速率', en:'Burn Rate',       dzh:'当前 5h 计费块的花费速率（$/h）',                            den:'Spend rate ($/h) of the active 5-hour billing block' },
+  block:    { zh:'5h 窗口',  en:'5h Window',       dzh:'官方限额窗口：已用 % + 剩余时间；≥90% 红警',                  den:'Rate-limit window: used % + time remaining; warns at 90%' },
+  git:      { zh:'Git 状态', en:'Git Status',      dzh:'分支 + 脏文件数 + ahead/behind；未提交堆积红警',              den:'Branch + dirty files + ahead/behind; warns when uncommitted work piles up' },
+  dir:      { zh:'当前目录', en:'Directory',       dzh:'当前工作目录名',                                             den:'Current working directory name' },
+  worktree: { zh:'工作树',   en:'Worktree',        dzh:'处于 git worktree 时显示其名称，否则隐藏',                    den:'Shows the git worktree name when inside one, hidden otherwise' },
+  speed:    { zh:'输出速度', en:'Token Speed',     dzh:'最近 5 分钟的输出 token 速率',                               den:'Output token rate over the last 5 minutes' },
+  session:  { zh:'会话时长', en:'Session Time',    dzh:'本次会话已持续时间',                                         den:'How long this session has been running' },
+  compact:  { zh:'压缩次数', en:'Compactions',     dzh:'本会话上下文压缩（compact）发生次数',                         den:'Number of context compactions in this session' },
+  style:    { zh:'输出风格', en:'Output Style',    dzh:'当前输出风格 + vim 模式指示',                                den:'Active output style + vim mode indicator' },
+  clock:    { zh:'时钟',     en:'Clock',           dzh:'本机时间 HH:MM',                                            den:'Local time HH:MM' },
+  cpumem:   { zh:'系统资源', en:'CPU / Memory',    dzh:'本机 CPU% 与内存%；任一 ≥90% 红警',                          den:'Local CPU% and memory%; warns when either hits 90%' },
+  mcp:      { zh:'MCP 数量', en:'MCP Servers',     dzh:'已配置的 MCP server 数量（5 分钟缓存）',                      den:'Number of configured MCP servers (cached 5 min)' },
+  pr:       { zh:'关联 PR',  en:'Pull Request',    dzh:'当前分支关联的 GitHub PR 号（需 gh CLI，5 分钟缓存）',        den:'PR number linked to the current branch (needs gh CLI, cached 5 min)' },
+  api:      { zh:'API 状态', en:'API Status',      dzh:'Anthropic API 官方健康状态（5 分钟缓存）',                    den:'Anthropic API health from the official status page (cached 5 min)' },
+};
+const segTip = id => {
+  const s = SEG_INFO[id];
+  return s ? `${id} · ${s.zh} / ${s.en}\n${s.dzh}\n${s.den}` : id;
+};
 
 async function api(path, body) {
   const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} : {});
@@ -131,8 +174,8 @@ function drawPreview(p) {
     box.appendChild(div);
   });
   document.getElementById('srcnote').textContent = p.real
-    ? '✅ 预览使用你最近一次 Claude Code 会话的真实数据'
-    : 'ℹ️ 暂无真实会话缓存（ccpill 上岗跑一次后即切换为真实数据），当前为内置样例';
+    ? '✅ 预览使用你最近一次 Claude Code 会话的真实数据 / Preview uses real data from your latest Claude Code session'
+    : 'ℹ️ 暂无真实会话缓存，当前为内置样例（ccpill 上岗跑一次后自动切换）/ No real session cached yet — showing built-in sample (switches automatically after first run)';
 }
 
 async function refresh() {
@@ -141,10 +184,30 @@ async function refresh() {
 
 function chip(id) {
   const c = document.createElement('span');
-  c.className = 'chip'; c.textContent = id; c.draggable = true; c.dataset.seg = id;
+  c.className = 'chip'; c.draggable = true; c.dataset.seg = id;
+  c.textContent = id;
+  const info = SEG_INFO[id];
+  if (info) {
+    const z = document.createElement('span');
+    z.className = 'zh'; z.textContent = info.zh;
+    c.appendChild(z);
+  }
+  c.title = segTip(id);
   c.addEventListener('dragstart', () => { dragging = c; setTimeout(() => c.classList.add('ghost')); });
   c.addEventListener('dragend', () => { dragging = null; c.classList.remove('ghost'); });
   return c;
+}
+
+function drawLegend() {
+  const box = document.getElementById('legend');
+  box.innerHTML = '';
+  allSegs.forEach(id => {
+    const s = SEG_INFO[id] || { zh:'', en:'', dzh:'', den:'' };
+    const d = document.createElement('div');
+    d.className = 'lg';
+    d.innerHTML = `<b>${id}</b><span><span class="nm">${s.zh} / ${s.en}</span><br><span class="ds">${s.dzh}<br>${s.den}</span></span>`;
+    box.appendChild(d);
+  });
 }
 
 function bindDrop(el) {
@@ -195,10 +258,10 @@ function drawLines() {
 function bindControls() {
   const th = document.getElementById('theme'), ic = document.getElementById('iconset'), pl = document.getElementById('pills');
   th.value = cfg.theme; ic.value = cfg.icon_set; pl.checked = cfg.pills;
-  document.getElementById('pillstate').textContent = cfg.pills ? '开' : '关';
+  document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off';
   th.onchange = () => { cfg.theme = th.value; refresh(); };
   ic.onchange = () => { cfg.icon_set = ic.value; refresh(); };
-  pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开' : '关'; refresh(); };
+  pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off'; refresh(); };
   document.getElementById('save').onclick = async () => {
     const r = await api('/api/save', cfg);
     const m = document.getElementById('savemsg');
@@ -215,6 +278,7 @@ function bindControls() {
   st.themes.sort().forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; th.appendChild(o); });
   bindControls();
   drawLines();
+  drawLegend();
   drawPreview(st.preview);
 })();
 </script>
