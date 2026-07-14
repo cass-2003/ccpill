@@ -3,6 +3,8 @@
 package segment
 
 import (
+	"sort"
+
 	"ccpill/internal/config"
 	"ccpill/internal/gitinfo"
 	"ccpill/internal/input"
@@ -62,11 +64,12 @@ func Register(s Segment) { registry[s.ID()] = s }
 // Get 按 ID 取 segment；未知 ID 返回 nil（配置向前兼容：忽略而非报错）。
 func Get(id string) Segment { return registry[id] }
 
-// IDs 返回全部已注册 segment ID（供配置校验与 Web 配置页枚举）。
+// IDs 返回全部已注册 segment ID（按字典序，供配置校验与 Web 配置页枚举）。
 func IDs() []string {
 	out := make([]string, 0, len(registry))
 	for id := range registry {
 		out = append(out, id)
 	}
+	sort.Strings(out)
 	return out
 }

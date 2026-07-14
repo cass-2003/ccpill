@@ -12,6 +12,7 @@ import (
 type Info struct {
 	IsRepo bool
 	Branch string
+	SHA    string // HEAD 完整 oid（porcelain v2 branch.oid；初始仓库为空）
 	Ahead  int
 	Behind int
 	Dirty  int // 未提交变更条目数（含未跟踪）
@@ -41,6 +42,10 @@ func parsePorcelainV2(out string) Info {
 		switch {
 		case strings.HasPrefix(line, "# branch.head "):
 			info.Branch = strings.TrimPrefix(line, "# branch.head ")
+		case strings.HasPrefix(line, "# branch.oid "):
+			if oid := strings.TrimPrefix(line, "# branch.oid "); oid != "(initial)" {
+				info.SHA = oid
+			}
 		case strings.HasPrefix(line, "# branch.ab "):
 			// 形如 "# branch.ab +2 -1"
 			for _, f := range strings.Fields(strings.TrimPrefix(line, "# branch.ab ")) {

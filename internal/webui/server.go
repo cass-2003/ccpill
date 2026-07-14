@@ -87,6 +87,26 @@ func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
 		text, fg = "PR #128", t.Extra
 	case "api":
 		text, fg = "API ●", t.Cost
+	case "tokens":
+		text, fg = "⇅ 1.2M/38k", t.Context
+	case "cachehit":
+		text, fg = "cache 96%", t.Context
+	case "lines":
+		text, fg = "+123 −45", t.Git
+	case "weekly":
+		text, fg = "7d 62% ⏳ 3d4h", t.Rate
+	case "version":
+		text, fg = "v2.1.209", t.Muted
+	case "gitsha":
+		text, fg = "f71cfc4", t.Git
+	case "sessionid":
+		text, fg = "sid ae5a234a", t.Muted
+	case "email":
+		text, fg = "you@example.com", t.Muted
+	case "text":
+		text, fg = "我的备注", t.Extra
+	case "cmd":
+		text, fg = "cmd 输出示例", t.Extra
 	default:
 		return nil
 	}

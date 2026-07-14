@@ -37,6 +37,7 @@
   .ctl { display:flex; flex-direction:column; gap:7px; }
   .ctl label { font-size:12px; color:var(--subtext); }
   select { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:7px 12px; font-size:13px; }
+  input[type=text] { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:7px 12px; font-size:13px; min-width:260px; font-family:Consolas,monospace; }
   .toggle { display:flex; align-items:center; gap:9px; cursor:pointer; padding:6px 0; }
   .toggle input { display:none; }
   .knob { width:38px; height:21px; border-radius:11px; background:var(--surface1); position:relative; transition:.15s; }
@@ -105,6 +106,15 @@
   </div>
 
   <div class="card">
+    <h2>自定义<span class="en">Custom Segments</span></h2>
+    <div class="sub">给 <b>text</b> / <b>cmd</b> 两个 segment 提供内容：静态文本原样显示；命令取输出首行（1 秒超时，10 秒缓存，命令失败不影响其他胶囊）。填好后把对应胶囊拖进上方布局即可。<br>Content for the <b>text</b> / <b>cmd</b> segments: static text is shown as-is; the command's first output line is shown (1s timeout, 10s cache, failures never break other pills). Fill in, then drag the chip into a row above.</div>
+    <div class="controls">
+      <div class="ctl"><label>自定义文本 Custom Text（text segment）</label><input type="text" id="customtext" placeholder="例如：搬砖中 / e.g. focus mode"></div>
+      <div class="ctl"><label>自定义命令 Custom Command（cmd segment）</label><input type="text" id="customcmd" placeholder="例如：node --version"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Segment 功能对照表<span class="en">Segment Reference</span></h2>
     <div class="sub">全部可用 segment 的功能说明（中英对照）。<br>What every available segment does, in both languages.</div>
     <div id="legend"></div>
@@ -140,6 +150,16 @@ const SEG_INFO = {
   mcp:      { zh:'MCP 数量', en:'MCP Servers',     dzh:'已配置的 MCP server 数量（5 分钟缓存）',                      den:'Number of configured MCP servers (cached 5 min)' },
   pr:       { zh:'关联 PR',  en:'Pull Request',    dzh:'当前分支关联的 GitHub PR 号（需 gh CLI，5 分钟缓存）',        den:'PR number linked to the current branch (needs gh CLI, cached 5 min)' },
   api:      { zh:'API 状态', en:'API Status',      dzh:'Anthropic API 官方健康状态（5 分钟缓存）',                    den:'Anthropic API health from the official status page (cached 5 min)' },
+  tokens:   { zh:'Token 量', en:'Token Totals',    dzh:'本会话输入/输出 token 总量（⇅ 输入/输出）',                   den:'Session input/output token totals (⇅ in/out)' },
+  cachehit: { zh:'缓存命中', en:'Cache Hit Rate',  dzh:'本会话 prompt cache 命中率——越高越省钱',                      den:'Prompt-cache hit rate this session — higher means cheaper' },
+  lines:    { zh:'代码行数', en:'Lines Changed',   dzh:'本会话新增/删除代码行数（官方统计）',                          den:'Lines of code added/removed this session (official figure)' },
+  weekly:   { zh:'周限额',   en:'Weekly Window',   dzh:'7 天限额窗口：已用 % + 重置倒计时；≥90% 红警',                den:'7-day rate-limit window: used % + reset countdown; warns at 90%' },
+  version:  { zh:'版本号',   en:'CC Version',      dzh:'当前 Claude Code 版本号',                                    den:'Claude Code version in use' },
+  gitsha:   { zh:'提交 SHA', en:'Commit SHA',      dzh:'HEAD 提交短 SHA（7 位）',                                    den:'Short SHA (7 chars) of the HEAD commit' },
+  sessionid:{ zh:'会话 ID',  en:'Session ID',      dzh:'当前会话 ID 前 8 位，方便定位 transcript',                    den:'First 8 chars of the session ID, handy for locating transcripts' },
+  email:    { zh:'账号邮箱', en:'Account Email',   dzh:'当前登录的 Claude 账号邮箱（5 分钟缓存）',                    den:'Email of the signed-in Claude account (cached 5 min)' },
+  text:     { zh:'自定义文本', en:'Custom Text',   dzh:'显示下方「自定义」区填写的静态文本',                          den:'Shows the static text from the Custom section below' },
+  cmd:      { zh:'自定义命令', en:'Custom Command', dzh:'执行「自定义」区的命令并显示输出首行（1s 超时，10s 缓存）',    den:'Runs the command from the Custom section, shows first output line (1s timeout, 10s cache)' },
 };
 const segTip = id => {
   const s = SEG_INFO[id];
@@ -165,6 +185,16 @@ const HIDE_REASON = {
   mcp:      '未配置任何 MCP server / no MCP servers configured',
   pr:       '当前分支无关联 PR，或未安装 gh CLI / no PR for this branch, or gh CLI missing',
   api:      'API 状态获取失败（网络不可达）/ could not fetch API status (network unreachable)',
+  tokens:   '会话尚无 token 用量 / no token usage yet',
+  cachehit: '会话尚无输入 token，算不出命中率 / no input tokens yet to compute a rate',
+  lines:    '本会话尚未增删代码行 / no lines added or removed yet',
+  weekly:   '无周限额窗口数据 / no weekly rate-limit data',
+  version:  '会话数据未提供版本号 / no version info in session data',
+  gitsha:   '当前目录不是 Git 仓库或无提交 / not a git repo, or no commits yet',
+  sessionid:'会话数据无 session ID / no session ID in session data',
+  email:    '未读到登录账号信息 / no signed-in account info found',
+  text:     '「自定义」区的文本为空 / custom text is empty',
+  cmd:      '「自定义」区未填命令或命令无输出 / no command set, or it produced no output',
 };
 
 async function api(path, body) {
@@ -307,6 +337,14 @@ function bindControls() {
   th.onchange = () => { cfg.theme = th.value; refresh(); };
   ic.onchange = () => { cfg.icon_set = ic.value; refresh(); };
   pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off'; refresh(); };
+  const ct = document.getElementById('customtext'), cc = document.getElementById('customcmd');
+  ct.value = cfg.custom_text || ''; cc.value = cfg.custom_command || '';
+  let debounce = null;
+  const onCustom = () => {
+    cfg.custom_text = ct.value; cfg.custom_command = cc.value;
+    clearTimeout(debounce); debounce = setTimeout(refresh, 400);
+  };
+  ct.oninput = onCustom; cc.oninput = onCustom;
   document.getElementById('save').onclick = async () => {
     const r = await api('/api/save', cfg);
     const m = document.getElementById('savemsg');

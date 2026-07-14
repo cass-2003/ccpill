@@ -35,7 +35,7 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 16 个 Segment
+## 28 个 Segment
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -57,6 +57,16 @@ go build -o ccpill.exe .
 | `mcp` | MCP server 数量 | `~/.claude.json`（5min 缓存） |
 | `pr` | 当前分支关联 PR 号 | `gh` CLI（2s 超时，5min 缓存） |
 | `api` | Anthropic API 状态 | status.anthropic.com（5min 缓存） |
+| `tokens` | 会话输入/输出 token 总量（`⇅ 1.2M/38k`） | stdin 优先，transcript 兜底 |
+| `cachehit` | prompt cache 命中率（越高越省钱） | transcript |
+| `lines` | 本会话代码行增删（`+123 −45`） | stdin `cost.total_lines_*` |
+| `weekly` | 7 天限额窗口：已用 % + 重置倒计时（≥90% 红警） | stdin `rate_limits.seven_day` |
+| `version` | Claude Code 版本号 | stdin |
+| `gitsha` | HEAD 短 SHA | 复用 git 单次采集（零额外子进程） |
+| `sessionid` | 会话 ID 前 8 位 | stdin |
+| `email` | 登录账号邮箱 | `~/.claude.json`（5min 缓存） |
+| `text` | 自定义静态文本 | config `custom_text` |
+| `cmd` | 自定义命令输出首行（1s 超时，10s 缓存） | config `custom_command` |
 
 > 费用类 segment 采用 **auto 模式**：transcript 自带 `costUSD` 直接用（老版本 Claude Code）；
 > 新版不写该字段，按 `message.model` 查内嵌定价表重算（含 5m/1h 缓存写价与缓存读价）。
@@ -72,6 +82,8 @@ pills = true                  # false = 无胶囊背景，彩色文字 + │ 分
 icon_set = "nerd"             # nerd / unicode / ascii
 daily_budget = 0.0            # >0 时启用今日预算红警
 git_dirty_warn = 15           # 脏文件数红警阈值
+custom_text = ""              # text segment 显示的静态文本
+custom_command = ""           # cmd segment 执行的命令（输出首行，1s 超时）
 
 lines = [
   ["model", "context", "cost", "today", "burn", "block"],

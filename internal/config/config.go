@@ -19,6 +19,9 @@ type Config struct {
 	// 预警（PRD §3.3）
 	DailyBudget  float64 `toml:"daily_budget" json:"daily_budget"`     // 日花费预算线（美元，0=不启用）
 	GitDirtyWarn int     `toml:"git_dirty_warn" json:"git_dirty_warn"` // 脏文件堆积预警阈值（0=不启用）
+	// 自定义 segment（text / cmd）
+	CustomText    string `toml:"custom_text" json:"custom_text"`       // text segment 显示的静态文本
+	CustomCommand string `toml:"custom_command" json:"custom_command"` // cmd segment 执行的命令（取输出首行，1s 超时，10s 缓存）
 }
 
 // Default 返回默认配置（设计稿 C 双行默认布局）。
