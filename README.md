@@ -3,28 +3,102 @@
 > A pill-styled, blazing-fast statusline for Claude Code. Written in Go.
 > Claude Code 状态栏工具：胶囊视觉 · Go 原生性能 · 本地 Web 配置中心。
 
-**状态：V0.1 开发中**（2026-07-15 立项）
+**状态：V0.1 可用**（2026-07-15 立项，同日全量功能上线）
 
-## 设计签名
+## 快速上手
 
-- 💊 **薄胶囊 segment**：每个 widget 一颗圆角药丸（可一键关闭背景退化为彩色文字）
-- 🎨 **全套流行主题**：Catppuccin（默认）/ Tokyo Night / Nord / Dracula / Gruvbox …整套切换
-- ⚡ **Go 单二进制**：无运行时依赖，缓存 TTL 架构，冷启动即热
-- 🌐 **本地 Web 配置中心**：`ccpill --config` 拉起 localhost 页面，拖拽排 segment、实时真数据预览（全竞品独家）
-- 📊 **16 widgets**：费用/burn rate/5h 窗口 · 上下文 · 模型/思考等级 · Git/PR · token 速度 · 系统资源等
-- 🔔 **四类预警**：上下文阈值 / 日预算线 / 5h 窗口耗尽 / Git 未提交堆积
-- 🔤 **三档图标集**：Nerd Font / Unicode 安全 / 纯 ASCII
+```bash
+# 1. 构建（或从 Releases 下载，V0.3 起）
+go build -o ccpill.exe .
+
+# 2. 一键上岗——写入 Claude Code settings.json（自动备份原配置）
+./ccpill.exe --install
+
+# 3. 重启 Claude Code（或开新会话），胶囊状态栏即生效
+```
+
+效果（默认双行布局）：
+
+```
+ ⚡ Fable 5 · think:hi  ctx ●●●●●●○○○○ 62%  $4.83  今日 $471.75  🔥 $186.9/h  5h 34% ⏳ 2h17m
+ 📁 ccpill  ⎇ main ✚15 未提交堆积  ⏱ 2h13m  05:10
+```
+
+### 常用命令
+
+| 命令 | 作用 |
+|------|------|
+| `ccpill --install` | 一键上岗：写入 `~/.claude/settings.json` 的 `statusLine`（时间戳备份 + 原子写） |
+| `ccpill --config` | 打开本地 Web 配置中心：主题/图标集/胶囊开关/1-3 行拖拽布局，**真实会话数据实时预览** |
+| `ccpill --uninstall` | 卸载：移除 `statusLine` 配置（同样先备份） |
+| `ccpill --version` | 版本号 |
+
+无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
+
+## 16 个 Segment
+
+| ID | 显示 | 数据源 |
+|----|------|--------|
+| `model` | 模型名 + 思考等级（`think:hi`） | stdin |
+| `context` | 上下文用量条 + 百分比（80% 变色 / 90% 红警「即将压缩」） | stdin 优先，transcript 兜底 |
+| `cost` | 本会话花费 | stdin `cost.total_cost_usd` |
+| `today` | 今日总花费（跨会话），超 `daily_budget` 红警 | transcript 扫描 + 内嵌定价表重算 |
+| `burn` | 当前 5h block 的烧钱速率 $/h | 同上 |
+| `block` | 5h 限额窗口：已用 % + 剩余时间（≥90% 红警） | stdin `rate_limits` 优先，transcript 推断兜底 |
+| `git` | 分支 + 脏文件数 + ahead/behind（脏文件 ≥`git_dirty_warn` 红警） | `git status --porcelain=v2`（500ms 超时） |
+| `dir` | 当前目录名 | stdin |
+| `worktree` | worktree 名称（在 worktree 中才显示） | stdin |
+| `speed` | 最近 5 分钟输出 token 速度 | transcript |
+| `session` | 会话时长 | stdin `total_duration_ms` |
+| `compact` | 本会话 compaction 次数 | transcript `compact_boundary` |
+| `style` | 输出风格 + vim 模式 | stdin |
+| `clock` | 时钟 HH:MM | 本机 |
+| `cpumem` | CPU% / 内存%（≥90% 红警） | Win32 API（无子进程） |
+| `mcp` | MCP server 数量 | `~/.claude.json`（5min 缓存） |
+| `pr` | 当前分支关联 PR 号 | `gh` CLI（2s 超时，5min 缓存） |
+| `api` | Anthropic API 状态 | status.anthropic.com（5min 缓存） |
+
+> 费用类 segment 采用 **auto 模式**：transcript 自带 `costUSD` 直接用（老版本 Claude Code）；
+> 新版不写该字段，按 `message.model` 查内嵌定价表重算（含 5m/1h 缓存写价与缓存读价）。
+
+## 配置
+
+配置文件：`~/.claude/ccpill/config.toml`（`CLAUDE_CONFIG_DIR` 优先）。推荐用 `ccpill --config` 可视化编辑，手改示例：
+
+```toml
+version = 1
+theme = "catppuccin-mocha"   # 或 tokyo-night
+pills = true                  # false = 无胶囊背景，彩色文字 + │ 分隔
+icon_set = "nerd"             # nerd / unicode / ascii
+daily_budget = 0.0            # >0 时启用今日预算红警
+git_dirty_warn = 15           # 脏文件数红警阈值
+
+lines = [
+  ["model", "context", "cost", "today", "burn", "block"],
+  ["dir", "git", "speed", "session", "clock"],
+]
+```
+
+- `lines` 支持 1-3 行，每行填 segment ID，未知 ID 自动忽略（向前兼容）
+- Web 配置中心与终端渲染共用同一 compose 层，**所见即所得**
+
+## 性能
+
+- 渲染热路径 ~0.6ms（sample 输入 hyperfine 实测均值 620µs）
+- transcript 全量扫描（1.6GB）冷 ~5s → 结果缓存 60s，热路径 ~40ms
+- git/PR/MCP/API 各自独立 TTL 缓存，全部尽力而为——任何数据源失败不影响其余 segment
 
 ## 文档
 
 - 产品需求：`docs/PRD.md`
-- 竞品拆解笔记：`docs/research/`
+- 竞品拆解笔记：`docs/research/`（ccstatusline / CCometixLine / ccusage 源码级拆解）
 
 ## 开发
 
 ```bash
 go build -o ccpill.exe .
-go test ./...
+go vet ./... && go test ./...
+./ccpill.exe < testdata/sample.json   # 本地预览
 ```
 
 License: MIT（开源发布时正式添加）
