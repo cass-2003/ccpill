@@ -56,18 +56,23 @@ type themeJSON struct {
 
 func previewPayload(cfg config.Config, status *input.Status, real bool) map[string]any {
 	t := theme.Get(cfg.Theme)
+	rows, hidden := compose.LinesDetail(cfg, status)
 	lines := make([][]pillJSON, 0, 3)
-	for _, row := range compose.Lines(cfg, status) {
+	for _, row := range rows {
 		line := make([]pillJSON, 0, len(row))
 		for _, p := range row {
 			line = append(line, pillJSON{Text: p.Text, FG: p.Color.Hex(), Warn: p.Level == render.Warn})
 		}
 		lines = append(lines, line)
 	}
+	if hidden == nil {
+		hidden = []string{}
+	}
 	return map[string]any{
-		"lines": lines,
-		"theme": themeJSON{Name: t.Name, PillBG: t.PillBG.Hex(), Sep: t.Sep.Hex(), Warn: t.Warn.Hex(), WarnFG: t.WarnFG.Hex()},
-		"real":  real,
+		"lines":  lines,
+		"hidden": hidden, // 已启用但当前条件不满足而隐藏的 segment
+		"theme":  themeJSON{Name: t.Name, PillBG: t.PillBG.Hex(), Sep: t.Sep.Hex(), Warn: t.Warn.Hex(), WarnFG: t.WarnFG.Hex()},
+		"real":   real,
 	}
 }
 

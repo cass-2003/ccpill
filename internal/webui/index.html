@@ -26,6 +26,11 @@
   #preview .pl { border-radius:20px; padding:0 10px; line-height:1.55; font-size:12.5px; }
   #preview .noplbar { display:inline-flex; gap:0; }
   #srcnote { font-size:11.5px; color:var(--overlay); margin-top:8px; }
+  #hiddennote { font-size:11.5px; color:var(--peach); margin-top:8px; line-height:1.7; display:none; }
+  #hiddennote b { font-family:Consolas,monospace; }
+  #hiddennote .why { color:var(--overlay); }
+  .chip.off { opacity:.5; border-color:var(--overlay); }
+  .chip.off::after { content:'隐藏'; font-size:10px; color:var(--peach); margin-left:5px; }
   /* 控制区 */
   .controls { display:flex; gap:22px; flex-wrap:wrap; }
   .ctl { display:flex; flex-direction:column; gap:7px; }
@@ -71,6 +76,7 @@
     <div class="sub">下方所有改动即时反映在这里，与终端渲染共用同一引擎，所见即所得。<br>Every change below renders here instantly — same engine as the terminal, WYSIWYG.</div>
     <div id="preview"></div>
     <div id="srcnote"></div>
+    <div id="hiddennote"></div>
   </div>
 
   <div class="card">
@@ -139,6 +145,27 @@ const segTip = id => {
   return s ? `${id} · ${s.zh} / ${s.en}\n${s.dzh}\n${s.den}` : id;
 };
 
+// 条件显示类 segment 的隐藏原因（预览提示条用）
+const HIDE_REASON = {
+  model:    '会话数据未提供模型信息 / no model info in session data',
+  context:  '会话数据无上下文用量 / no context usage in session data',
+  cost:     '会话尚无花费数据 / no cost data yet',
+  today:    '今日暂无可计费用量 / no billable usage today',
+  burn:     '当前无活跃 5h 计费块 / no active 5h billing block',
+  block:    '无限额窗口数据 / no rate-limit window data',
+  git:      '当前目录不是 Git 仓库 / not a git repository',
+  dir:      '会话数据无目录信息 / no directory info',
+  worktree: '不在 git worktree 中 / not inside a git worktree',
+  speed:    '最近 5 分钟无输出 token / no output tokens in the last 5 minutes',
+  session:  '会话数据无时长信息 / no duration info in session data',
+  compact:  '本会话尚未发生上下文压缩 / no compaction happened this session',
+  style:    '默认输出风格且未开 vim 模式 / default output style and vim mode off',
+  cpumem:   '系统资源接口不可用 / system metrics unavailable',
+  mcp:      '未配置任何 MCP server / no MCP servers configured',
+  pr:       '当前分支无关联 PR，或未安装 gh CLI / no PR for this branch, or gh CLI missing',
+  api:      'API 状态获取失败（网络不可达）/ could not fetch API status (network unreachable)',
+};
+
 async function api(path, body) {
   const r = await fetch(path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} : {});
   if (!r.ok) throw new Error(await r.text());
@@ -176,6 +203,19 @@ function drawPreview(p) {
   document.getElementById('srcnote').textContent = p.real
     ? '✅ 预览使用你最近一次 Claude Code 会话的真实数据 / Preview uses real data from your latest Claude Code session'
     : 'ℹ️ 暂无真实会话缓存，当前为内置样例（ccpill 上岗跑一次后自动切换）/ No real session cached yet — showing built-in sample (switches automatically after first run)';
+  drawHidden(p.hidden || []);
+}
+
+// 已启用但条件不满足的 segment：预览下方解释原因 + 布局区胶囊淡显
+function drawHidden(hidden) {
+  const set = new Set(hidden);
+  document.querySelectorAll('#lines .chip').forEach(c =>
+    c.classList.toggle('off', set.has(c.dataset.seg)));
+  const box = document.getElementById('hiddennote');
+  if (!hidden.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = '⚠️ 已启用但当前条件不满足而隐藏（条件满足时会自动出现）/ Enabled but hidden until their condition is met:<br>' +
+    hidden.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || '当前无数据 / no data right now'}</span>`).join('<br>');
 }
 
 async function refresh() {
