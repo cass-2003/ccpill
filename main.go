@@ -28,6 +28,30 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "--install":
+			if err := install(); err != nil {
+				fmt.Fprintln(os.Stderr, "ccpill:", err)
+				os.Exit(1)
+			}
+			return
+		case "--uninstall":
+			if err := uninstall(); err != nil {
+				fmt.Fprintln(os.Stderr, "ccpill:", err)
+				os.Exit(1)
+			}
+			return
+		case "--help", "-h":
+			fmt.Println(`ccpill 💊 — Claude Code 胶囊状态栏
+
+用法:
+  ccpill --install     一键上岗（写入 Claude Code settings.json，自动备份）
+  ccpill --config      打开 Web 配置中心（主题/布局/预警，实时预览）
+  ccpill --uninstall   卸载（移除 statusLine 配置）
+  ccpill --version     版本
+
+无参数时从 stdin 读 Claude Code 状态 JSON 并渲染状态栏（由 Claude Code 调用）。
+配置文件: ~/.claude/ccpill/config.toml`)
+			return
 		}
 	}
 	if err := run(); err != nil {
