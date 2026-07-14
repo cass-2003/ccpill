@@ -1,0 +1,34 @@
+{
+  "session_id": "test-123",
+  "cwd": "J:\\claude-statusline-tools\\ccpill",
+  "model": {
+    "id": "claude-fable-5",
+    "display_name": "Fable 5"
+  },
+  "workspace": {
+    "current_dir": "J:\\claude-statusline-tools\\ccpill"
+  },
+  "effort": {
+    "level": "high"
+  },
+  "cost": {
+    "total_cost_usd": 4.83,
+    "total_duration_ms": 8000000
+  },
+  "context_window": {
+    "context_window_size": 200000,
+    "used_percentage": 62,
+    "current_usage": {
+      "input_tokens": 100000,
+      "output_tokens": 5000,
+      "cache_creation_input_tokens": 14000,
+      "cache_read_input_tokens": 10000
+    }
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 34,
+      "resets_at": 1784500000
+    }
+  }
+}
