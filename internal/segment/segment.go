@@ -3,10 +3,12 @@
 package segment
 
 import (
+	"ccpill/internal/config"
 	"ccpill/internal/gitinfo"
 	"ccpill/internal/input"
 	"ccpill/internal/render"
 	"ccpill/internal/theme"
+	"ccpill/internal/usage"
 )
 
 // Context 是一次渲染的共享数据：stdin 解析结果 + 惰性采集的外部信息。
@@ -15,9 +17,22 @@ type Context struct {
 	Status *input.Status
 	Icons  render.IconSet
 	Theme  theme.Theme
+	Cfg    config.Config
 
 	gitOnce bool
 	git     gitinfo.Info
+
+	usageOnce bool
+	usageSum  usage.Summary
+}
+
+// Usage 惰性加载跨会话用量聚合（内部带 60s 文件缓存）。
+func (c *Context) Usage() usage.Summary {
+	if !c.usageOnce {
+		c.usageSum = usage.Load()
+		c.usageOnce = true
+	}
+	return c.usageSum
 }
 
 // Git 惰性采集 git 信息（仅第一次调用真正跑 git 子进程）。

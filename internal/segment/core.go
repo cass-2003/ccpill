@@ -100,15 +100,20 @@ func (gitSeg) Render(c *Context) *render.Pill {
 	var b strings.Builder
 	b.WriteString(c.Icons.Branch + " " + g.Branch)
 	if g.Dirty > 0 {
-		fmt.Fprintf(&b, " ✚%d", g.Dirty)
+		fmt.Fprintf(&b, " %s%d", c.Icons.Dirty, g.Dirty)
 	}
 	if g.Ahead > 0 {
-		fmt.Fprintf(&b, " ↑%d", g.Ahead)
+		fmt.Fprintf(&b, " %s%d", c.Icons.Ahead, g.Ahead)
 	}
 	if g.Behind > 0 {
-		fmt.Fprintf(&b, " ↓%d", g.Behind)
+		fmt.Fprintf(&b, " %s%d", c.Icons.Behind, g.Behind)
 	}
-	return &render.Pill{Text: b.String(), Color: c.Theme.Git}
+	p := &render.Pill{Text: b.String(), Color: c.Theme.Git}
+	if c.Cfg.GitDirtyWarn > 0 && g.Dirty >= c.Cfg.GitDirtyWarn {
+		p.Level = render.Warn
+		p.Text += " 未提交堆积"
+	}
+	return p
 }
 
 // ---- dir：当前目录名 ----

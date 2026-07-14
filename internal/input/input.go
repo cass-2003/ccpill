@@ -135,6 +135,10 @@ type Status struct {
 	Vim           struct {
 		Mode *string `json:"mode"`
 	} `json:"vim"`
+	Worktree struct {
+		Name   string `json:"name"`
+		Branch string `json:"branch"`
+	} `json:"worktree"`
 	RateLimits *RateLimits `json:"rate_limits"`
 }
 

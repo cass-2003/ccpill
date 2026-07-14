@@ -16,6 +16,7 @@ func Lines(cfg config.Config, status *input.Status) [][]render.Pill {
 		Status: status,
 		Icons:  render.Icons(cfg.IconSet),
 		Theme:  theme.Get(cfg.Theme),
+		Cfg:    cfg,
 	}
 	var out [][]render.Pill
 	for _, lineIDs := range cfg.Lines {
