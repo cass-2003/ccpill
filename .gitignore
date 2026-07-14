@@ -1,0 +1,6 @@
+ccpill
+ccpill.exe
+dist/
+*.test
+coverage.out
+.env
