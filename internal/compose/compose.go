@@ -10,37 +10,47 @@ import (
 	"ccpill/internal/theme"
 )
 
-// Lines 按配置逐行组装胶囊；未知 segment ID 忽略（向前兼容）。
-func Lines(cfg config.Config, status *input.Status) [][]render.Pill {
-	lines, _ := LinesDetail(cfg, status)
-	return lines
+// Item 是一次渲染中某个已启用 segment 的结果；Pill 为 nil 表示条件不满足而隐藏。
+type Item struct {
+	ID   string
+	Pill *render.Pill
 }
 
-// LinesDetail 额外返回「已启用但本次渲染为空」的 segment ID（条件显示类），
-// 供 Web 配置中心向用户解释"选了为什么没出现"。
-func LinesDetail(cfg config.Config, status *input.Status) ([][]render.Pill, []string) {
+// Lines 按配置逐行组装胶囊；未知 segment ID 忽略（向前兼容）。
+func Lines(cfg config.Config, status *input.Status) [][]render.Pill {
+	var out [][]render.Pill
+	for _, row := range Detail(cfg, status) {
+		var pills []render.Pill
+		for _, it := range row {
+			if it.Pill != nil {
+				pills = append(pills, *it.Pill)
+			}
+		}
+		out = append(out, pills)
+	}
+	return out
+}
+
+// Detail 保留每个已启用 segment 的位置与渲染结果（含隐藏项），
+// 供 Web 配置中心在预览里为隐藏项补示例胶囊。
+func Detail(cfg config.Config, status *input.Status) [][]Item {
 	ctx := &segment.Context{
 		Status: status,
 		Icons:  render.Icons(cfg.IconSet),
 		Theme:  theme.Get(cfg.Theme),
 		Cfg:    cfg,
 	}
-	var out [][]render.Pill
-	var hidden []string
+	var out [][]Item
 	for _, lineIDs := range cfg.Lines {
-		var pills []render.Pill
+		var row []Item
 		for _, id := range lineIDs {
 			seg := segment.Get(id)
 			if seg == nil {
 				continue
 			}
-			if p := seg.Render(ctx); p != nil {
-				pills = append(pills, *p)
-			} else {
-				hidden = append(hidden, id)
-			}
+			row = append(row, Item{ID: id, Pill: seg.Render(ctx)})
 		}
-		out = append(out, pills)
+		out = append(out, row)
 	}
-	return out, hidden
+	return out
 }

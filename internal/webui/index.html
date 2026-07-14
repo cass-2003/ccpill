@@ -29,8 +29,9 @@
   #hiddennote { font-size:11.5px; color:var(--peach); margin-top:8px; line-height:1.7; display:none; }
   #hiddennote b { font-family:Consolas,monospace; }
   #hiddennote .why { color:var(--overlay); }
-  .chip.off { opacity:.5; border-color:var(--overlay); }
-  .chip.off::after { content:'隐藏'; font-size:10px; color:var(--peach); margin-left:5px; }
+  .chip.off { opacity:.6; border-style:dashed; }
+  .chip.off::after { content:'示例'; font-size:10px; color:var(--peach); margin-left:5px; }
+  #preview .smp { opacity:.55; outline:1px dashed var(--overlay); outline-offset:1px; }
   /* 控制区 */
   .controls { display:flex; gap:22px; flex-wrap:wrap; }
   .ctl { display:flex; flex-direction:column; gap:7px; }
@@ -145,7 +146,7 @@ const segTip = id => {
   return s ? `${id} · ${s.zh} / ${s.en}\n${s.dzh}\n${s.den}` : id;
 };
 
-// 条件显示类 segment 的隐藏原因（预览提示条用）
+// 条件显示类 segment 当前条件未满足的原因（预览示例胶囊提示用）
 const HIDE_REASON = {
   model:    '会话数据未提供模型信息 / no model info in session data',
   context:  '会话数据无上下文用量 / no context usage in session data',
@@ -196,6 +197,10 @@ function drawPreview(p) {
           div.appendChild(sep);
         }
       }
+      if (pill.sample) {
+        s.classList.add('smp');
+        s.title = `${pill.seg} · 示例数据，实际条件满足时才在终端显示 / sample data — shown in the terminal only when its condition is met\n${HIDE_REASON[pill.seg] || ''}`;
+      }
       div.appendChild(s);
     });
     box.appendChild(div);
@@ -203,19 +208,19 @@ function drawPreview(p) {
   document.getElementById('srcnote').textContent = p.real
     ? '✅ 预览使用你最近一次 Claude Code 会话的真实数据 / Preview uses real data from your latest Claude Code session'
     : 'ℹ️ 暂无真实会话缓存，当前为内置样例（ccpill 上岗跑一次后自动切换）/ No real session cached yet — showing built-in sample (switches automatically after first run)';
-  drawHidden(p.hidden || []);
+  drawSample(p.sample || []);
 }
 
-// 已启用但条件不满足的 segment：预览下方解释原因 + 布局区胶囊淡显
-function drawHidden(hidden) {
-  const set = new Set(hidden);
+// 条件未满足的 segment：预览中已用示例数据占位，此处标注原因 + 布局区胶囊打「示例」标
+function drawSample(sample) {
+  const set = new Set(sample);
   document.querySelectorAll('#lines .chip').forEach(c =>
     c.classList.toggle('off', set.has(c.dataset.seg)));
   const box = document.getElementById('hiddennote');
-  if (!hidden.length) { box.style.display = 'none'; return; }
+  if (!sample.length) { box.style.display = 'none'; return; }
   box.style.display = 'block';
-  box.innerHTML = '⚠️ 已启用但当前条件不满足而隐藏（条件满足时会自动出现）/ Enabled but hidden until their condition is met:<br>' +
-    hidden.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || '当前无数据 / no data right now'}</span>`).join('<br>');
+  box.innerHTML = 'ℹ️ 虚线胶囊为示例数据，条件满足时才在终端真正显示（不占位）/ Dashed pills show sample data — they appear in the terminal only when their condition is met:<br>' +
+    sample.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || '当前无数据 / no data right now'}</span>`).join('<br>');
 }
 
 async function refresh() {

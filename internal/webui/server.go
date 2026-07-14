@@ -41,9 +41,56 @@ func loadStatus() (*input.Status, bool) {
 }
 
 type pillJSON struct {
-	Text string `json:"text"`
-	FG   string `json:"fg"`
-	Warn bool   `json:"warn"`
+	Seg    string `json:"seg"`
+	Text   string `json:"text"`
+	FG     string `json:"fg"`
+	Warn   bool   `json:"warn"`
+	Sample bool   `json:"sample"` // true = 条件未满足，以示例数据占位展示
+}
+
+// samplePill 为条件显示类 segment 生成示例胶囊（仅 Web 预览用，终端不渲染）。
+func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
+	var text string
+	var fg theme.RGB
+	switch id {
+	case "model":
+		text, fg = ic.Model+" Fable 5 · think:hi", t.Model
+	case "context":
+		text, fg = "ctx "+render.Bar(52, 10, ic)+" 52%", t.Context
+	case "cost":
+		text, fg = ic.Cost+"1.23", t.Cost
+	case "today":
+		text, fg = "今日 "+ic.Cost+"12.34", t.Cost
+	case "burn":
+		text, fg = ic.Flame+" "+ic.Cost+"8.6/h", t.Rate
+	case "block":
+		text, fg = "5h 34% ⏳ 2h10m", t.Rate
+	case "git":
+		text, fg = ic.Branch+" main "+ic.Dirty+"3", t.Git
+	case "dir":
+		text, fg = ic.Dir+" project", t.Dir
+	case "worktree":
+		text, fg = "wt:feature-x", t.Extra
+	case "speed":
+		text, fg = "tok 42/s", t.Cost
+	case "session":
+		text, fg = ic.Clock+" 1h02m", t.Clock
+	case "compact":
+		text, fg = "compact ×2", t.Extra
+	case "style":
+		text, fg = "concise · vim:i", t.Extra
+	case "cpumem":
+		text, fg = "CPU 12% · MEM 45%", t.Clock
+	case "mcp":
+		text, fg = "MCP ●3", t.Git
+	case "pr":
+		text, fg = "PR #128", t.Extra
+	case "api":
+		text, fg = "API ●", t.Cost
+	default:
+		return nil
+	}
+	return &pillJSON{Seg: id, Text: text, FG: fg.Hex(), Sample: true}
 }
 
 type themeJSON struct {
@@ -56,21 +103,26 @@ type themeJSON struct {
 
 func previewPayload(cfg config.Config, status *input.Status, real bool) map[string]any {
 	t := theme.Get(cfg.Theme)
-	rows, hidden := compose.LinesDetail(cfg, status)
+	ic := render.Icons(cfg.IconSet)
 	lines := make([][]pillJSON, 0, 3)
-	for _, row := range rows {
+	sample := []string{} // 本次以示例数据渲染的 segment（条件未满足）
+	for _, row := range compose.Detail(cfg, status) {
 		line := make([]pillJSON, 0, len(row))
-		for _, p := range row {
-			line = append(line, pillJSON{Text: p.Text, FG: p.Color.Hex(), Warn: p.Level == render.Warn})
+		for _, it := range row {
+			if it.Pill != nil {
+				line = append(line, pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Warn: it.Pill.Level == render.Warn})
+				continue
+			}
+			if sp := samplePill(it.ID, t, ic); sp != nil {
+				line = append(line, *sp)
+				sample = append(sample, it.ID)
+			}
 		}
 		lines = append(lines, line)
 	}
-	if hidden == nil {
-		hidden = []string{}
-	}
 	return map[string]any{
 		"lines":  lines,
-		"hidden": hidden, // 已启用但当前条件不满足而隐藏的 segment
+		"sample": sample, // 已启用但条件未满足、预览中以示例数据占位的 segment
 		"theme":  themeJSON{Name: t.Name, PillBG: t.PillBG.Hex(), Sep: t.Sep.Hex(), Warn: t.Warn.Hex(), WarnFG: t.WarnFG.Hex()},
 		"real":   real,
 	}
