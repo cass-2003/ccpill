@@ -28,14 +28,25 @@
 
 ## 🚀 快速上手
 
+### 一键安装（推荐）
+
+```powershell
+# Windows（PowerShell）
+irm https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.ps1 | iex
+```
+
 ```bash
-# 1. 构建（或从 Releases 下载，V0.3 起）
-go build -o ccpill.exe .
+# macOS / Linux / Git Bash
+curl -fsSL https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.sh | bash
+```
 
-# 2. 一键上岗——写入 Claude Code settings.json（自动备份原配置）
-./ccpill.exe --install
+脚本自动完成三步：Releases 预编译二进制（暂无时用本机 Go `go install` 源码直装，二选一）→ 落到 `~/.claude/ccpill/bin/` → 写入 Claude Code `settings.json`（自动备份原配置）。重启 Claude Code（或开新会话）即生效。
 
-# 3. 重启 Claude Code（或开新会话），胶囊状态栏即生效
+### 手动安装
+
+```bash
+go install github.com/cass-2003/ccpill@latest   # 或 clone 后 go build -o ccpill.exe .
+ccpill --install    # 一键上岗——写入 settings.json（自动备份）
 ```
 
 效果（默认双行布局）：

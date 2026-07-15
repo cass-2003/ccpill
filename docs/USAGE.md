@@ -4,6 +4,20 @@
 
 ## 0. 三步上岗
 
+一键脚本（Releases 预编译优先，无则本机 Go 源码直装，装完自动写配置）：
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.ps1 | iex
+```
+
+```bash
+# macOS / Linux / Git Bash
+curl -fsSL https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.sh | bash
+```
+
+或手动：
+
 ```bash
 go build -o ccpill.exe .
 ./ccpill.exe --install     # 写入 Claude Code settings.json（自动备份）
