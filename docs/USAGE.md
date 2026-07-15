@@ -96,7 +96,7 @@ go build -o ccpill.exe .
 
 | 控件 | 说明 |
 |------|------|
-| 主题 | 整套配色（catppuccin-mocha / tokyo-night） |
+| 主题 | 整套配色（catppuccin-mocha / tokyo-night / nord / dracula / gruvbox-dark） |
 | 图标集 | `nerd`（需 Nerd Font）/ `unicode`（安全符号 ⚡⎇，**推荐**）/ `ascii`（纯文本） |
 | 胶囊端帽 | `圆角` 需字体含 Powerline 半圆字形（Windows Terminal 默认的 Cascadia Mono 就有）；显示成方块就换 `平角` |
 | 胶囊背景 | 关闭后变成彩色文字 + │ 分隔的轻量样式 |

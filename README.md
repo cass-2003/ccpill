@@ -182,7 +182,7 @@ ccpill --install    # 一键上岗——写入 settings.json（自动备份）
 
 ```toml
 version = 1
-theme = "catppuccin-mocha"   # 或 tokyo-night
+theme = "catppuccin-mocha"   # 或 tokyo-night / nord / dracula / gruvbox-dark
 pills = true                  # false = 无胶囊背景，彩色文字 + │ 分隔
 icon_set = "nerd"             # nerd / unicode / ascii
 caps = "auto"                 # auto / round / flat —— 胶囊圆角端帽，与图标集独立
