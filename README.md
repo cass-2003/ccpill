@@ -6,16 +6,17 @@
 
 胶囊视觉 · Go 原生性能 · 本地 Web 配置中心 · 高度自定义
 
+[![Release](https://img.shields.io/github/v/release/cass-2003/ccpill?color=89b4fa)](https://github.com/cass-2003/ccpill/releases/latest)
+[![CI](https://github.com/cass-2003/ccpill/actions/workflows/ci.yml/badge.svg)](https://github.com/cass-2003/ccpill/actions/workflows/ci.yml)
 ![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-a6e3a1)
 ![Segments](https://img.shields.io/badge/Segments-75-cba6f7)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-statusline-fab387)
 
 ![ccpill · 双行默认布局（Catppuccin 薄胶囊）](docs/assets/preview.png)
 
 </div>
 
-> **状态：V0.1 可用**（2026-07-15 立项，同日全量功能上线）
+> **状态：V0.2 已发布**（2026-07-15 立项；五平台预编译二进制见 [Releases](https://github.com/cass-2003/ccpill/releases)）
 
 ## ✨ 特性
 
