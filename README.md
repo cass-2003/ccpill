@@ -193,4 +193,6 @@ go vet ./... && go test ./...
 ./ccpill.exe < testdata/sample.json   # 本地预览
 ```
 
-License: MIT（开源发布时正式添加）
+## License
+
+[MIT](LICENSE)

@@ -1,6 +1,17 @@
+# 构建产物
 ccpill
-ccpill.exe
+*.exe
 dist/
+
+# 测试与覆盖率
 *.test
 coverage.out
+
+# 本地临时
+*.patch
+*.tmp
 .env
+
+# 编辑器
+.vscode/
+.idea/
