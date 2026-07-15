@@ -72,6 +72,10 @@ func install() error {
 	if err != nil {
 		return err
 	}
+	// 必须用正斜杠：Claude Code 在 Windows 上经 Git Bash(sh) 执行 statusline 命令，
+	// 反斜杠路径会被 sh 当转义符吃掉（J:\a\b.exe → J:ab.exe → command not found）。
+	// 正斜杠在 sh 和 cmd 下都能正确执行。
+	exe = filepath.ToSlash(exe)
 	path, err := claudeSettingsPath()
 	if err != nil {
 		return err
