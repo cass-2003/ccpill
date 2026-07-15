@@ -23,6 +23,8 @@
   /* 预览区 */
   /* 预览吸顶：滚到仓库/对照表时依然可见，拖拽实时反馈 */
   #previewcard { position:sticky; top:10px; z-index:60; padding:16px 30px 14px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+  /* 拖拽中吸顶预览不参与命中：避免挡住靠近页面顶部的行 */
+  .dragmode #previewcard { pointer-events:none; opacity:.45; }
   #previewcard h2 { margin-bottom:10px; }
   #preview { background:var(--crust); border-radius:12px; padding:16px 20px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
   #preview .pline { display:flex; gap:10px; align-items:center; padding:7px 0; white-space:nowrap; }
@@ -150,7 +152,7 @@
 </main>
 
 <script>
-let cfg = null, allSegs = [], dragging = null;
+let cfg = null, allSegs = [], dragging = null, dropped = false;
 
 // segment 双语功能说明（悬停提示 + 对照表共用）
 const SEG_INFO = {
@@ -348,8 +350,21 @@ function chip(id) {
     c.appendChild(z);
   }
   c.title = segTip(id);
-  c.addEventListener('dragstart', () => { dragging = c; setTimeout(() => c.classList.add('ghost')); });
-  c.addEventListener('dragend', () => { dragging = null; c.classList.remove('ghost'); });
+  c.addEventListener('dragstart', e => {
+    dragging = c; dropped = false;
+    e.dataTransfer.effectAllowed = 'move';
+    document.body.classList.add('dragmode');
+    setTimeout(() => c.classList.add('ghost'));
+  });
+  c.addEventListener('dragend', () => {
+    c.classList.remove('ghost');
+    document.body.classList.remove('dragmode');
+    if (!dragging) return;
+    dragging = null;
+    // 在编辑区/仓库内松手 → 持久化实时预插入的落点；Esc 或拖到空白处 → 按原配置重绘回滚
+    if (dropped) syncFromDOM();
+    else { drawLines(); refresh(); }
+  });
   return c;
 }
 
@@ -374,16 +389,31 @@ function drawLegend() {
   });
 }
 
+// 计算插入位置：先比行（Y），同一视觉行内再比 X 中线——支持 flex 换行后的多行排序
+function dropTarget(el, x, y) {
+  const chips = [...el.querySelectorAll('.chip:not(.ghost)')];
+  return chips.find(c => {
+    const r = c.getBoundingClientRect();
+    if (y < r.top) return true;                                  // 指针在此胶囊所在行之上
+    return y <= r.bottom && x < r.left + r.width / 2;            // 同一行且在其左半
+  }) || null;
+}
+
 function bindDrop(el) {
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragover', e => {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    el.classList.add('dragover');
+    if (!dragging) return;
+    // 实时预插入：拖动过程中即时看到最终落点
+    const after = dropTarget(el, e.clientX, e.clientY);
+    if (after !== dragging && after !== dragging.nextSibling) {
+      el.insertBefore(dragging, after);
+    }
+  });
   el.addEventListener('dragleave', () => el.classList.remove('dragover'));
   el.addEventListener('drop', e => {
     e.preventDefault(); el.classList.remove('dragover');
-    if (!dragging) return;
-    const after = [...el.querySelectorAll('.chip:not(.ghost)')].find(c =>
-      e.clientX < c.getBoundingClientRect().left + c.offsetWidth / 2);
-    el.insertBefore(dragging, after || null);
-    syncFromDOM();
+    dropped = true; // 落点已由 dragover 实时预插入，持久化统一在 dragend 处理
   });
 }
 
