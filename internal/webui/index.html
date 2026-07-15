@@ -54,6 +54,13 @@
   .slotrow .del { background:none; border:1px solid var(--surface1); color:var(--overlay); border-radius:8px; padding:7px 12px; cursor:pointer; font-size:14px; }
   .slotrow .del:hover { color:var(--red); border-color:var(--red); }
   .ghostbtn { background:none; border:1px dashed var(--surface1); color:var(--subtext); border-radius:9px; padding:9px 20px; cursor:pointer; font-size:14.5px; }
+  /* 使用说明卡（可折叠） */
+  #helpcard { padding:14px 30px; }
+  #helpcard summary { cursor:pointer; font-size:14.5px; color:var(--subtext); list-style-position:inside; }
+  #helpcard summary:hover { color:var(--mauve); }
+  #helpcard .helpbody { margin-top:14px; font-size:14px; line-height:2.1; color:var(--subtext); }
+  #helpcard code { background:var(--crust); padding:2px 7px; border-radius:6px; font-size:13px; color:var(--text); }
+  #helpcard .helpmore { color:var(--overlay); font-size:13px; }
   .ghostbtn:hover { border-color:var(--mauve); color:var(--mauve); }
   /* 胶囊色点：点击开外观面板，右键全部重置 */
   .chip .swatch { display:inline-block; width:11px; height:11px; border-radius:50%; margin-left:7px; border:1px solid var(--surface1); vertical-align:1px; cursor:pointer; }
@@ -122,6 +129,24 @@
     <details id="hiddennote"><summary id="hiddensum"></summary><div id="hiddenlist"></div></details>
   </div>
 
+  <div class="card" id="helpcard">
+    <details>
+      <summary>📖 怎么用？点开看 3 分钟上手指南（含例子）/ How to use — quick guide with examples</summary>
+      <div class="helpbody">
+        <b>① 排布局</b>——从「Segment 仓库」把想要的胶囊拖进「布局编排」的行里（最多 3 行）；行内拖动排序，拖回仓库停用。<br>
+        <b>② 调外观</b>——「外观」卡片选主题/图标集/圆角；开「紧凑模式」全局去前缀。<br>
+        <b>③ 单颗自定义</b>——点<b>任意胶囊右侧的小圆点 🎨</b>：前景色、底色、前缀、加粗随便改（任意 RGB 取色器）；右键圆点重置。
+        例：把 <code>today</code> 前景改 <code>#ff8800</code>、前缀填 <code>Today </code>，就从「今日 $9.40」变成橙色的「Today $9.40」；前缀留空则只剩「$9.40」。<br>
+        <b>④ 加自己的东西</b>——「自定义」卡片点「＋添加插槽」：
+        例 1：名字 <code>备注</code> + 文本 <code>搬砖中</code> + 粉色 → 状态栏出现粉色「搬砖中」；
+        例 2：名字 <code>ip</code> + 命令 <code>curl -s ifconfig.me</code> + 蓝色 → 显示公网 IP（1s 超时 10s 缓存，断网只是这颗消失）；
+        例 3：命令 <code>node --version</code> → 显示 Node 版本。建好后从仓库区「自定义插槽」分组拖进布局。<br>
+        <b>⑤ 保存</b>——右上角「保存生效」（预览只是试穿，保存才落盘）；Claude Code 下次刷新状态栏即生效，无需重启。<br>
+        <span class="helpmore">完整文档见仓库 <code>docs/USAGE.md</code>；虚线胶囊 = 已启用但条件未满足的示例占位，点预览下方折叠条看原因。</span>
+      </div>
+    </details>
+  </div>
+
   <div class="card">
     <h2>外观<span class="en">Appearance</span></h2>
     <div class="sub">主题决定整套配色；图标集按终端字体能力选择；胶囊背景关闭后退化为彩色文字 + │ 分隔。<br>Theme sets the full palette; pick an icon set your terminal font supports; turning pills off falls back to colored text with │ separators.</div>
@@ -148,7 +173,9 @@
 
   <div class="card">
     <h2>布局编排<span class="en">Layout Editor</span></h2>
-    <div class="sub">拖动胶囊在行间移动排序（最多 3 行）；拖到下方「仓库」卡片即停用。悬停任意胶囊可查看功能说明。<br>Drag chips between rows to reorder (up to 3 lines); drop into the pool card below to disable. Hover any chip for its description.</div>
+    <div class="sub">拖动胶囊在行间移动排序（最多 3 行）；拖到下方「仓库」卡片即停用。悬停任意胶囊可查看功能说明。<br>
+    🎨 <b>每颗胶囊右侧的小圆点</b>＝外观自定义入口：点击可改 前景色 / 底色 / 前缀 / 加粗（任意 RGB），右键圆点一键重置；已自定义的圆点发紫光。<br>
+    Drag chips between rows to reorder; drop into the pool below to disable. Click the <b>dot on any chip</b> to customize color / pill background / label / bold — right-click the dot to reset.</div>
     <div id="lines"></div>
   </div>
 

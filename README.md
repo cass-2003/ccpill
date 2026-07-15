@@ -181,6 +181,7 @@ color = "#f5c2e7"
 
 ## 文档
 
+- **使用指南（推荐先读）**：[`docs/USAGE.md`](docs/USAGE.md) —— 布局拖拽、色点外观面板、自定义插槽实例、FAQ
 - 产品需求：`docs/PRD.md`
 - 竞品拆解笔记：`docs/research/`（ccstatusline / CCometixLine / ccusage 源码级拆解）
 
