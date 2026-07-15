@@ -247,6 +247,7 @@ const SEG_INFO = {
   think:    { zh:'思考等级',  en:'Thinking Level', dzh:'仅思考等级 think:hi（model 的拆分件）',                      den:'Thinking effort only (split from model)' },
   ctxbar:   { zh:'上下文条',  en:'Context Bar',    dzh:'仅上下文进度条（context 的拆分件），80/90% 同样变色',         den:'Context usage bar only (split from context), same 80/90% warning colors' },
   ctxpct:   { zh:'上下文 %',  en:'Context %',      dzh:'仅上下文百分比（context 的拆分件）',                         den:'Context percentage only (split from context)' },
+  ctxpie:   { zh:'上下文饼图', en:'Context pie',    dzh:'饼形字形 ◕ + 百分比（设计稿单行紧凑形态，ascii 档退化为文字）', den:'Pie glyph ◕ + percentage (single-line compact look)' },
   ctxlen:   { zh:'上下文量',  en:'Context Length', dzh:'当前上下文占用 token 数（如 ctx 89k）',                      den:'Tokens currently in context (e.g. ctx 89k)' },
   tokin:    { zh:'输入 token', en:'Input Tokens',  dzh:'本会话输入 token（不含缓存，tokens 的拆分件）',               den:'Session input tokens, cache excluded (split from tokens)' },
   tokout:   { zh:'输出 token', en:'Output Tokens', dzh:'本会话输出 token（tokens 的拆分件）',                        den:'Session output tokens (split from tokens)' },
@@ -297,7 +298,7 @@ const segTip = id => {
 
 // segment 功能分组（对照表 + 仓库区共用；未列入的新 ID 自动归入最后一组）
 const SEG_GROUPS = [
-  { zh:'模型与上下文', en:'Model & Context',  ids:['model','modelname','think','context','ctxbar','ctxpct','ctxlen','ctxwin','ctxusable','tokens','tokin','tokout','tokcache','tokwrite','toktotal','cachehit','cachetimer','compact','speed','speedin','speedtotal','style','outstyle','vim'] },
+  { zh:'模型与上下文', en:'Model & Context',  ids:['model','modelname','think','context','ctxbar','ctxpie','ctxpct','ctxlen','ctxwin','ctxusable','tokens','tokin','tokout','tokcache','tokwrite','toktotal','cachehit','cachetimer','compact','speed','speedin','speedtotal','style','outstyle','vim'] },
   { zh:'费用与限额',   en:'Cost & Limits',    ids:['cost','today','burn','block','blockpct','blocktime','weekly','weeklysonnet','weeklyopus','overage'] },
   { zh:'Git 与工作区', en:'Git & Workspace',  ids:['git','gitbranch','gitstatus','gitchanges','gitstaged','gitunstaged','gituntracked','gitconflicts','gitab','gitdiff','gitins','gitdel','gitstash','gitstate','gitsha','gittag','gitage','gitrepo','gitremote','worktree','pr','dir','lines'] },
   { zh:'会话与账号',   en:'Session & Account', ids:['session','sessionname','sessionid','msgcount','resptime','version','email'] },
@@ -346,6 +347,7 @@ const HIDE_REASON = {
   think:    '会话数据无思考等级 / no thinking level in session data',
   ctxbar:   '会话数据无上下文用量 / no context usage in session data',
   ctxpct:   '会话数据无上下文用量 / no context usage in session data',
+  ctxpie:   '会话数据无上下文用量 / no context usage in session data',
   ctxlen:   '会话数据无上下文用量明细 / no context usage detail in session data',
   tokin:    '会话尚无 token 用量 / no token usage yet',
   tokout:   '会话尚无 token 用量 / no token usage yet',

@@ -115,6 +115,9 @@ func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) 
 		text, fg = L("wt:")+"feature-x", t.Extra
 	case "speed":
 		text, fg = L("tok ")+"42/s", t.Cost
+		if spark := render.Spark([]int64{1, 4, 6, 8}, ic); spark != "" {
+			text += " " + spark
+		}
 	case "session":
 		text, fg = ic.Clock+" 1h02m", t.Clock
 	case "compact":
@@ -159,6 +162,12 @@ func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) 
 		text, fg = L("think:")+"hi", t.Model
 	case "ctxbar":
 		text, fg = render.Bar(52, 10, ic), t.Context
+	case "ctxpie":
+		if pie := render.Pie(62, ic); pie != "" {
+			text, fg = pie+" 62%", t.Context
+		} else {
+			text, fg = L("ctx ")+"62%", t.Context
+		}
 	case "ctxpct":
 		text, fg = L("ctx ")+"52%", t.Context
 	case "ctxlen":

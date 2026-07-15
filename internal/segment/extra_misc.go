@@ -59,9 +59,11 @@ func (speedSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	entries := transcript.ReadFile(path)
-	cutoff := time.Now().Add(-5 * time.Minute)
+	const window = 5 * time.Minute
+	cutoff := time.Now().Add(-window)
 	var out int64
 	var first, last time.Time
+	var buckets [4]int64 // 窗口四等分，喂给 sparkline
 	for _, e := range entries {
 		if e.Timestamp.Before(cutoff) || e.IsSidechain {
 			continue
@@ -71,13 +73,22 @@ func (speedSeg) Render(c *Context) *render.Pill {
 		}
 		last = e.Timestamp
 		out += e.Output
+		idx := int(e.Timestamp.Sub(cutoff) * 4 / window)
+		if idx > 3 {
+			idx = 3
+		}
+		buckets[idx] += e.Output
 	}
 	span := last.Sub(first).Seconds()
 	if span <= 0 || out == 0 {
 		return nil
 	}
+	text := fmt.Sprintf("%s%.0f/s", c.L("tok "), float64(out)/span)
+	if spark := render.Spark(buckets[:], c.Icons); spark != "" {
+		text += " " + spark
+	}
 	return &render.Pill{
-		Text:  fmt.Sprintf("%s%.0f/s", c.L("tok "), float64(out)/span),
+		Text:  text,
 		Color: c.Theme.Cost,
 	}
 }

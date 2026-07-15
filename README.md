@@ -8,7 +8,7 @@
 
 ![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-a6e3a1)
-![Segments](https://img.shields.io/badge/Segments-74-cba6f7)
+![Segments](https://img.shields.io/badge/Segments-75-cba6f7)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-statusline-fab387)
 
 ![ccpill · 双行默认布局（Catppuccin 薄胶囊）](docs/assets/preview.png)
@@ -21,7 +21,7 @@
 
 - 💊 **胶囊视觉** —— Catppuccin 薄胶囊默认主题；胶囊背景可一键关闭，退化为彩色文字 + `│` 分隔的轻量模式
 - ⚡ **快** —— Go 单二进制，渲染热路径 ~0.6ms；重数据全部惰性采集 + 独立缓存，任何数据源失败都不拖慢状态栏
-- 🧩 **74 个 Segment** —— 会话 / 费用 / 限额 / Git 全家桶 / 系统 / OAuth 用量，全量对齐主流友商
+- 🧩 **75 个 Segment** —— 会话 / 费用 / 限额 / Git 全家桶 / 系统 / OAuth 用量，全量对齐主流友商
 - 🎛️ **Web 配置中心** —— `ccpill --config`：1-3 行拖拽布局、真实会话数据实时预览、所见即所得
 - 🎨 **高度自定义** —— 每颗胶囊独立 RGB 前景 / 底色 / 前缀 / 加粗；自定义插槽把任何文本或命令输出放上状态栏
 - 🔌 **一键上岗** —— `--install` 写入 settings.json（自动备份），`--uninstall` 干净卸载
@@ -56,7 +56,7 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 🧩 Segment 总览（74 个）
+## 🧩 Segment 总览（75 个）
 
 四大类，全部在 Web 配置中心拖拽启停。点开分类查看完整清单：
 
@@ -74,7 +74,7 @@ go build -o ccpill.exe .
 | `git` | 分支 + 脏文件数 + ahead/behind（脏文件 ≥`git_dirty_warn` 红警） | `git status --porcelain=v2`（500ms 超时） |
 | `dir` | 当前目录名 | stdin |
 | `worktree` | worktree 名称（在 worktree 中才显示） | stdin |
-| `speed` | 最近 5 分钟输出 token 速度 | transcript |
+| `speed` | 最近 5 分钟输出 token 速度 + 趋势迷你柱（`tok 48/s ▂▄▆█`） | transcript |
 | `session` | 会话时长 | stdin `total_duration_ms` |
 | `compact` | 本会话 compaction 次数 | transcript `compact_boundary` |
 | `style` | 输出风格 + vim 模式 | stdin |
@@ -146,14 +146,14 @@ go build -o ccpill.exe .
 </details>
 
 <details>
-<summary><b>细粒度拆分件（18 个）</b> —— 合并型胶囊的单项版本，自由组合排布</summary>
+<summary><b>细粒度拆分件（19 个）</b> —— 合并型胶囊的单项版本，自由组合排布</summary>
 
 对齐 ccstatusline 的 widget 粒度：
 
 | 母件 | 拆分件 |
 |------|--------|
 | `model` | `modelname`（仅模型名）· `think`（仅思考等级） |
-| `context` | `ctxbar`（仅进度条）· `ctxpct`（仅百分比）· `ctxlen`（上下文 token 数） |
+| `context` | `ctxbar`（仅进度条）· `ctxpie`（饼形 `◕ 62%`，设计稿单行紧凑形态）· `ctxpct`（仅百分比）· `ctxlen`（上下文 token 数） |
 | `tokens` | `tokin` · `tokout` · `tokcache`（缓存读）· `toktotal`（全部合计） |
 | `git` | `gitbranch`（仅分支）· `gitchanges`（仅脏文件数）· `gitab`（相对远程 `+领先`绿/`−落后`红） |
 | `block` | `blockpct`（仅已用%）· `blocktime`（仅倒计时） |

@@ -4,6 +4,7 @@ package segment
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"ccpill/internal/render"
@@ -15,6 +16,7 @@ func init() {
 	Register(modelnameSeg{})
 	Register(thinkSeg{})
 	Register(ctxbarSeg{})
+	Register(ctxpieSeg{})
 	Register(ctxpctSeg{})
 	Register(ctxlenSeg{})
 	Register(tokinSeg{})
@@ -97,6 +99,24 @@ func (ctxbarSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	return ctxWarnColor(c, pct, &render.Pill{Text: render.Bar(pct, 10, c.Icons), Color: c.Theme.Context})
+}
+
+type ctxpieSeg struct{}
+
+func (ctxpieSeg) ID() string { return "ctxpie" }
+
+// ctxpie 是设计稿 C 单行紧凑形态的「◕ 62%」——饼形字形替代文字前缀。
+// ascii 档无饼形字形，退化为与 ctxpct 相同的「ctx 62%」。
+func (ctxpieSeg) Render(c *Context) *render.Pill {
+	pct, ok := c.Status.ContextPercent()
+	if !ok {
+		return nil
+	}
+	prefix := render.Pie(pct, c.Icons)
+	if prefix == "" {
+		prefix = strings.TrimRight(c.L("ctx "), " ")
+	}
+	return ctxWarnColor(c, pct, &render.Pill{Text: fmt.Sprintf("%s %.0f%%", prefix, pct), Color: c.Theme.Context})
 }
 
 type ctxpctSeg struct{}

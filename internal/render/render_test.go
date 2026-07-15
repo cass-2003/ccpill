@@ -46,3 +46,32 @@ func TestLineSpansWarnFallback(t *testing.T) {
 		t.Errorf("Warn 胶囊应回退渲染完整 Text\n%q", out)
 	}
 }
+
+func TestSpark(t *testing.T) {
+	is := Icons("unicode")
+	if got := Spark([]int64{1, 4, 6, 8}, is); got != "▁▄▆█" {
+		t.Fatalf("Spark = %q", got)
+	}
+	if got := Spark([]int64{0, 0}, is); got != "" {
+		t.Fatalf("all-zero Spark should be empty, got %q", got)
+	}
+	if got := Spark([]int64{1, 2}, Icons("ascii")); got != "" {
+		t.Fatalf("ascii Spark should be empty, got %q", got)
+	}
+}
+
+func TestPie(t *testing.T) {
+	is := Icons("unicode")
+	cases := []struct {
+		pct  float64
+		want string
+	}{{0, "○"}, {15, "○"}, {30, "◔"}, {50, "◑"}, {62, "◕"}, {85, "●"}, {100, "●"}}
+	for _, c := range cases {
+		if got := Pie(c.pct, is); got != c.want {
+			t.Fatalf("Pie(%.0f) = %q, want %q", c.pct, got, c.want)
+		}
+	}
+	if got := Pie(62, Icons("ascii")); got != "" {
+		t.Fatalf("ascii Pie should be empty, got %q", got)
+	}
+}
