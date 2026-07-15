@@ -96,6 +96,7 @@ pills = true                  # false = 无胶囊背景，彩色文字 + │ 分
 icon_set = "nerd"             # nerd / unicode / ascii
 caps = "auto"                 # auto / round / flat —— 胶囊圆角端帽，与图标集独立
                               # round 需字体含 Powerline 半圆字形（Nerd Font 或 Cascadia Mono）
+minimal = false               # 紧凑模式：去掉文字前缀（think:/ctx/tok/今日/5h…），只留数值与图标
 daily_budget = 0.0            # >0 时启用今日预算红警
 git_dirty_warn = 15           # 脏文件数红警阈值
 custom_text = ""              # text segment 显示的静态文本

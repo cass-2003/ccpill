@@ -94,7 +94,7 @@ func (cachehitSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	return &render.Pill{
-		Text:  fmt.Sprintf("cache %.0f%%", float64(read)/float64(denom)*100),
+		Text:  fmt.Sprintf("%s%.0f%%", c.L("cache "), float64(read)/float64(denom)*100),
 		Color: c.Theme.Context,
 	}
 }
@@ -131,9 +131,9 @@ func (weeklySeg) Render(c *Context) *render.Pill {
 	if remain <= 0 {
 		return nil
 	}
-	p := &render.Pill{Text: "7d ⏳ " + fmtDurDays(remain), Color: c.Theme.Rate}
+	p := &render.Pill{Text: c.L("7d ") + "⏳ " + fmtDurDays(remain), Color: c.Theme.Rate}
 	if used := rl.SevenDay.UsedPercentage; used.Valid {
-		p.Text = fmt.Sprintf("7d %.0f%% ⏳ %s", used.Value, fmtDurDays(remain))
+		p.Text = fmt.Sprintf("%s%.0f%% ⏳ %s", c.L("7d "), used.Value, fmtDurDays(remain))
 		if used.Value >= 90 {
 			p.Level = render.Warn
 			p.Text = c.Icons.Warn + " " + p.Text
@@ -190,7 +190,7 @@ func (sessionidSeg) Render(c *Context) *render.Pill {
 	if len(id) < 8 {
 		return nil
 	}
-	return &render.Pill{Text: "sid " + id[:8], Color: c.Theme.Muted}
+	return &render.Pill{Text: c.L("sid ") + id[:8], Color: c.Theme.Muted}
 }
 
 // ---- email：登录账号邮箱（~/.claude.json oauthAccount，5 分钟缓存） ----

@@ -28,7 +28,7 @@ func (modelSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	text := c.Icons.Model + " " + name
-	if lv := c.Status.EffortLevel(); lv != "" {
+	if lv := c.Status.EffortLevel(); lv != "" && !c.Cfg.Minimal {
 		text += " · think:" + shortEffort(lv)
 	}
 	return &render.Pill{Text: text, Color: c.Theme.Model}
@@ -58,7 +58,7 @@ func (contextSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	text := fmt.Sprintf("ctx %s %.0f%%", render.Bar(pct, 10, c.Icons), pct)
+	text := fmt.Sprintf("%s%s %.0f%%", c.L("ctx "), render.Bar(pct, 10, c.Icons), pct)
 	p := &render.Pill{Text: text, Color: c.Theme.Context}
 	if pct >= 90 {
 		p.Level = render.Warn

@@ -28,6 +28,14 @@ type Context struct {
 	usageSum  usage.Summary
 }
 
+// L 返回文字前缀；紧凑模式（config minimal）下为空串，只留数值与图标。
+func (c *Context) L(prefix string) string {
+	if c.Cfg.Minimal {
+		return ""
+	}
+	return prefix
+}
+
 // Usage 惰性加载跨会话用量聚合（内部带 60s 文件缓存）。
 func (c *Context) Usage() usage.Summary {
 	if !c.usageOnce {

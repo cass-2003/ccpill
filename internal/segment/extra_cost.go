@@ -25,7 +25,7 @@ func (todaySeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	p := &render.Pill{
-		Text:  fmt.Sprintf("今日 %s%.2f", c.Icons.Cost, u.TodayCost),
+		Text:  fmt.Sprintf("%s%s%.2f", c.L("今日 "), c.Icons.Cost, u.TodayCost),
 		Color: c.Theme.Cost,
 	}
 	if b := c.Cfg.DailyBudget; b > 0 && u.TodayCost >= b {
@@ -65,11 +65,11 @@ func (blockSeg) Render(c *Context) *render.Pill {
 		remain := time.Until(time.Unix(int64(rl.FiveHour.ResetsAt.Value), 0))
 		if remain > 0 {
 			p := &render.Pill{
-				Text:  "5h ⏳ " + fmtDur(remain),
+				Text:  c.L("5h ") + "⏳ " + fmtDur(remain),
 				Color: c.Theme.Rate,
 			}
 			if used := rl.FiveHour.UsedPercentage; used.Valid {
-				p.Text = fmt.Sprintf("5h %.0f%% ⏳ %s", used.Value, fmtDur(remain))
+				p.Text = fmt.Sprintf("%s%.0f%% ⏳ %s", c.L("5h "), used.Value, fmtDur(remain))
 				if used.Value >= 90 {
 					p.Level = render.Warn
 					p.Text = c.Icons.Warn + " " + p.Text
@@ -84,7 +84,7 @@ func (blockSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	return &render.Pill{
-		Text:  "5h ⏳ " + fmtDur(time.Duration(u.BlockRemainMin)*time.Minute),
+		Text:  c.L("5h ") + "⏳ " + fmtDur(time.Duration(u.BlockRemainMin)*time.Minute),
 		Color: c.Theme.Rate,
 	}
 }

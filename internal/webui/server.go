@@ -49,58 +49,69 @@ type pillJSON struct {
 }
 
 // samplePill 为条件显示类 segment 生成示例胶囊（仅 Web 预览用，终端不渲染）。
-func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
+// 前缀跟随紧凑模式（minimal），与真实渲染保持一致。
+func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) *pillJSON {
+	L := func(prefix string) string {
+		if cfg.Minimal {
+			return ""
+		}
+		return prefix
+	}
 	var text string
 	var fg theme.RGB
 	switch id {
 	case "model":
-		text, fg = ic.Model+" Fable 5 · think:hi", t.Model
+		text, fg = ic.Model+" Fable 5"+L(" · think:hi"), t.Model
 	case "context":
-		text, fg = "ctx "+render.Bar(52, 10, ic)+" 52%", t.Context
+		text, fg = L("ctx ")+render.Bar(52, 10, ic)+" 52%", t.Context
 	case "cost":
 		text, fg = ic.Cost+"1.23", t.Cost
 	case "today":
-		text, fg = "今日 "+ic.Cost+"12.34", t.Cost
+		text, fg = L("今日 ")+ic.Cost+"12.34", t.Cost
 	case "burn":
 		text, fg = ic.Flame+" "+ic.Cost+"8.6/h", t.Rate
 	case "block":
-		text, fg = "5h 34% ⏳ 2h10m", t.Rate
+		text, fg = L("5h ")+"34% ⏳ 2h10m", t.Rate
 	case "git":
 		text, fg = ic.Branch+" main "+ic.Dirty+"3", t.Git
 	case "dir":
 		text, fg = ic.Dir+" project", t.Dir
 	case "worktree":
-		text, fg = "wt:feature-x", t.Extra
+		text, fg = L("wt:")+"feature-x", t.Extra
 	case "speed":
-		text, fg = "tok 42/s", t.Cost
+		text, fg = L("tok ")+"42/s", t.Cost
 	case "session":
 		text, fg = ic.Clock+" 1h02m", t.Clock
 	case "compact":
-		text, fg = "compact ×2", t.Extra
+		text, fg = L("compact ")+"×2", t.Extra
 	case "style":
 		text, fg = "concise · vim:i", t.Extra
 	case "cpumem":
-		text, fg = "CPU 12% · MEM 45%", t.Clock
+		if cfg.Minimal {
+			text, fg = "C12% · M45%", t.Clock
+		} else {
+			text, fg = "CPU 12% · MEM 45%", t.Clock
+		}
 	case "mcp":
-		text, fg = "MCP ●3", t.Git
+		text, fg = L("MCP ")+"●3", t.Git
 	case "pr":
-		text, fg = "PR #128", t.Extra
+		text, fg = L("PR ")+"#128", t.Extra
 	case "api":
-		text, fg = "API ●", t.Cost
+		text, fg = L("API ")+"●", t.Cost
 	case "tokens":
 		text, fg = "⇅ 1.2M/38k", t.Context
 	case "cachehit":
-		text, fg = "cache 96%", t.Context
+		text, fg = L("cache ")+"96%", t.Context
 	case "lines":
 		text, fg = "+123 −45", t.Git
 	case "weekly":
-		text, fg = "7d 62% ⏳ 3d4h", t.Rate
+		text, fg = L("7d ")+"62% ⏳ 3d4h", t.Rate
 	case "version":
 		text, fg = "v2.1.209", t.Muted
 	case "gitsha":
 		text, fg = "f71cfc4", t.Git
 	case "sessionid":
-		text, fg = "sid ae5a234a", t.Muted
+		text, fg = L("sid ")+"ae5a234a", t.Muted
 	case "email":
 		text, fg = "you@example.com", t.Muted
 	case "text":
@@ -110,21 +121,21 @@ func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
 	case "modelname":
 		text, fg = ic.Model+" Fable 5", t.Model
 	case "think":
-		text, fg = "think:hi", t.Model
+		text, fg = L("think:")+"hi", t.Model
 	case "ctxbar":
 		text, fg = render.Bar(52, 10, ic), t.Context
 	case "ctxpct":
-		text, fg = "ctx 52%", t.Context
+		text, fg = L("ctx ")+"52%", t.Context
 	case "ctxlen":
-		text, fg = "ctx 89k", t.Context
+		text, fg = L("ctx ")+"89k", t.Context
 	case "tokin":
-		text, fg = "in 1.2M", t.Context
+		text, fg = L("in ")+"1.2M", t.Context
 	case "tokout":
-		text, fg = "out 38k", t.Context
+		text, fg = L("out ")+"38k", t.Context
 	case "tokcache":
-		text, fg = "cached 8.4M", t.Context
+		text, fg = L("cached ")+"8.4M", t.Context
 	case "toktotal":
-		text, fg = "tok 9.9M", t.Context
+		text, fg = L("tok ")+"9.9M", t.Context
 	case "gitbranch":
 		text, fg = ic.Branch+" main", t.Git
 	case "gitchanges":
@@ -132,13 +143,21 @@ func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
 	case "gitab":
 		text, fg = ic.Ahead+"2 "+ic.Behind+"1", t.Git
 	case "blockpct":
-		text, fg = "5h 34%", t.Rate
+		text, fg = L("5h ")+"34%", t.Rate
 	case "blocktime":
 		text, fg = "⏳ 2h10m", t.Rate
 	case "cpu":
-		text, fg = "CPU 12%", t.Clock
+		if cfg.Minimal {
+			text, fg = "C12%", t.Clock
+		} else {
+			text, fg = "CPU 12%", t.Clock
+		}
 	case "mem":
-		text, fg = "MEM 45%", t.Clock
+		if cfg.Minimal {
+			text, fg = "M45%", t.Clock
+		} else {
+			text, fg = "MEM 45%", t.Clock
+		}
 	case "outstyle":
 		text, fg = "concise", t.Extra
 	case "vim":
@@ -170,7 +189,7 @@ func previewPayload(cfg config.Config, status *input.Status, real bool) map[stri
 				line = append(line, pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Warn: it.Pill.Level == render.Warn})
 				continue
 			}
-			if sp := samplePill(it.ID, t, ic); sp != nil {
+			if sp := samplePill(it.ID, cfg, t, ic); sp != nil {
 				line = append(line, *sp)
 				sample = append(sample, it.ID)
 			}

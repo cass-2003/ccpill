@@ -77,7 +77,7 @@ func (speedSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	return &render.Pill{
-		Text:  fmt.Sprintf("tok %.0f/s", float64(out)/span),
+		Text:  fmt.Sprintf("%s%.0f/s", c.L("tok "), float64(out)/span),
 		Color: c.Theme.Cost,
 	}
 }
@@ -96,7 +96,7 @@ func (compactSeg) Render(c *Context) *render.Pill {
 	if n == 0 {
 		return nil
 	}
-	return &render.Pill{Text: fmt.Sprintf("compact ×%d", n), Color: c.Theme.Extra}
+	return &render.Pill{Text: fmt.Sprintf("%s×%d", c.L("compact "), n), Color: c.Theme.Extra}
 }
 
 // ---- style：输出风格 + Vim 模式 ----
@@ -142,11 +142,15 @@ func (cpumemSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	var parts []string
+	cpuLbl, memLbl := "CPU ", "MEM "
+	if c.Cfg.Minimal {
+		cpuLbl, memLbl = "C", "M"
+	}
 	if cpuOK {
-		parts = append(parts, fmt.Sprintf("CPU %.0f%%", cpu))
+		parts = append(parts, fmt.Sprintf("%s%.0f%%", cpuLbl, cpu))
 	}
 	if memOK {
-		parts = append(parts, fmt.Sprintf("MEM %.0f%%", mem))
+		parts = append(parts, fmt.Sprintf("%s%.0f%%", memLbl, mem))
 	}
 	p := &render.Pill{Text: strings.Join(parts, " · "), Color: c.Theme.Clock}
 	if (cpuOK && cpu >= 90) || (memOK && mem >= 90) {
@@ -165,7 +169,7 @@ func (worktreeSeg) Render(c *Context) *render.Pill {
 	if c.Status.Worktree.Name == "" {
 		return nil
 	}
-	return &render.Pill{Text: "wt:" + c.Status.Worktree.Name, Color: c.Theme.Extra}
+	return &render.Pill{Text: c.L("wt:") + c.Status.Worktree.Name, Color: c.Theme.Extra}
 }
 
 // ---- mcp：已配置 MCP server 数（读 ~/.claude.json，5 分钟缓存） ----
@@ -183,7 +187,7 @@ func (mcpSeg) Render(c *Context) *render.Pill {
 	if n <= 0 {
 		return nil
 	}
-	return &render.Pill{Text: fmt.Sprintf("MCP ●%d", n), Color: c.Theme.Git}
+	return &render.Pill{Text: fmt.Sprintf("%s●%d", c.L("MCP "), n), Color: c.Theme.Git}
 }
 
 func countMCPServers() int {
@@ -224,7 +228,7 @@ func (prSeg) Render(c *Context) *render.Pill {
 	if num <= 0 {
 		return nil
 	}
-	return &render.Pill{Text: fmt.Sprintf("PR #%d", num), Color: c.Theme.Extra}
+	return &render.Pill{Text: fmt.Sprintf("%s#%d", c.L("PR "), num), Color: c.Theme.Extra}
 }
 
 func lookupPR(c *Context) int {
@@ -258,7 +262,7 @@ func (apiSeg) Render(c *Context) *render.Pill {
 	}
 	switch ind {
 	case "none":
-		return &render.Pill{Text: "API ●", Color: c.Theme.Cost}
+		return &render.Pill{Text: c.L("API ") + "●", Color: c.Theme.Cost}
 	case "unknown", "":
 		return nil
 	default: // minor/major/critical

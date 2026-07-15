@@ -74,7 +74,7 @@ func (thinkSeg) Render(c *Context) *render.Pill {
 	if lv == "" {
 		return nil
 	}
-	return &render.Pill{Text: "think:" + shortEffort(lv), Color: c.Theme.Model}
+	return &render.Pill{Text: c.L("think:") + shortEffort(lv), Color: c.Theme.Model}
 }
 
 // ---- context 拆分 ----
@@ -109,7 +109,7 @@ func (ctxpctSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	return ctxWarnColor(c, pct, &render.Pill{Text: fmt.Sprintf("ctx %.0f%%", pct), Color: c.Theme.Context})
+	return ctxWarnColor(c, pct, &render.Pill{Text: fmt.Sprintf("%s%.0f%%", c.L("ctx "), pct), Color: c.Theme.Context})
 }
 
 type ctxlenSeg struct{}
@@ -121,7 +121,7 @@ func (ctxlenSeg) Render(c *Context) *render.Pill {
 	if !ok || used <= 0 {
 		return nil
 	}
-	return &render.Pill{Text: "ctx " + fmtTok(used), Color: c.Theme.Context}
+	return &render.Pill{Text: c.L("ctx ") + fmtTok(used), Color: c.Theme.Context}
 }
 
 // ---- tokens 拆分（transcript 口径） ----
@@ -135,7 +135,7 @@ func (tokinSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	return &render.Pill{Text: "in " + fmtTok(float64(in)), Color: c.Theme.Context}
+	return &render.Pill{Text: c.L("in ") + fmtTok(float64(in)), Color: c.Theme.Context}
 }
 
 type tokoutSeg struct{}
@@ -147,7 +147,7 @@ func (tokoutSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	return &render.Pill{Text: "out " + fmtTok(float64(out)), Color: c.Theme.Context}
+	return &render.Pill{Text: c.L("out ") + fmtTok(float64(out)), Color: c.Theme.Context}
 }
 
 type tokcacheSeg struct{}
@@ -159,7 +159,7 @@ func (tokcacheSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	return &render.Pill{Text: "cached " + fmtTok(float64(cread)), Color: c.Theme.Context}
+	return &render.Pill{Text: c.L("cached ") + fmtTok(float64(cread)), Color: c.Theme.Context}
 }
 
 type toktotalSeg struct{}
@@ -171,7 +171,7 @@ func (toktotalSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	return &render.Pill{Text: "tok " + fmtTok(float64(in+out+cread+ccreate)), Color: c.Theme.Context}
+	return &render.Pill{Text: c.L("tok ") + fmtTok(float64(in+out+cread+ccreate)), Color: c.Theme.Context}
 }
 
 // ---- git 拆分 ----
@@ -235,7 +235,7 @@ func (blockpctSeg) Render(c *Context) *render.Pill {
 		return nil
 	}
 	used := rl.FiveHour.UsedPercentage.Value
-	p := &render.Pill{Text: fmt.Sprintf("5h %.0f%%", used), Color: c.Theme.Rate}
+	p := &render.Pill{Text: fmt.Sprintf("%s%.0f%%", c.L("5h "), used), Color: c.Theme.Rate}
 	if used >= 90 {
 		p.Level = render.Warn
 	}
@@ -260,6 +260,14 @@ func (blocktimeSeg) Render(c *Context) *render.Pill {
 
 // ---- cpumem 拆分 ----
 
+// cpuLabel 紧凑模式用单字母前缀（C/M），保留可辨识性。
+func cpuLabel(c *Context, full, short string) string {
+	if c.Cfg.Minimal {
+		return short
+	}
+	return full
+}
+
 type cpuSeg struct{}
 
 func (cpuSeg) ID() string { return "cpu" }
@@ -269,7 +277,7 @@ func (cpuSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	p := &render.Pill{Text: fmt.Sprintf("CPU %.0f%%", v), Color: c.Theme.Clock}
+	p := &render.Pill{Text: fmt.Sprintf("%s%.0f%%", cpuLabel(c, "CPU ", "C"), v), Color: c.Theme.Clock}
 	if v >= 90 {
 		p.Level = render.Warn
 	}
@@ -285,7 +293,7 @@ func (memSeg) Render(c *Context) *render.Pill {
 	if !ok {
 		return nil
 	}
-	p := &render.Pill{Text: fmt.Sprintf("MEM %.0f%%", v), Color: c.Theme.Clock}
+	p := &render.Pill{Text: fmt.Sprintf("%s%.0f%%", cpuLabel(c, "MEM ", "M"), v), Color: c.Theme.Clock}
 	if v >= 90 {
 		p.Level = render.Warn
 	}

@@ -110,6 +110,8 @@
         </select></div>
       <div class="ctl"><label>胶囊背景 Pill Background</label>
         <label class="toggle"><input type="checkbox" id="pills"><span class="knob"></span><span id="pillstate"></span></label></div>
+      <div class="ctl"><label>紧凑模式 Minimal（去文字前缀 / strip label prefixes）</label>
+        <label class="toggle"><input type="checkbox" id="minimal"><span class="knob"></span><span id="minimalstate"></span></label></div>
     </div>
   </div>
 
@@ -435,6 +437,10 @@ function bindControls() {
   ic.onchange = () => { cfg.icon_set = ic.value; refresh(); };
   cp.onchange = () => { cfg.caps = cp.value; refresh(); };
   pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off'; refresh(); };
+  const mi = document.getElementById('minimal');
+  mi.checked = !!cfg.minimal;
+  document.getElementById('minimalstate').textContent = cfg.minimal ? '开 On' : '关 Off';
+  mi.onchange = () => { cfg.minimal = mi.checked; document.getElementById('minimalstate').textContent = cfg.minimal ? '开 On' : '关 Off'; refresh(); };
   const ct = document.getElementById('customtext'), cc = document.getElementById('customcmd');
   ct.value = cfg.custom_text || ''; cc.value = cfg.custom_command || '';
   let debounce = null;
