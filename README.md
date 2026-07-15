@@ -1,13 +1,32 @@
-# ccpill 💊
+<div align="center">
 
-> A pill-styled, blazing-fast statusline for Claude Code. Written in Go.
-> Claude Code 状态栏工具：胶囊视觉 · Go 原生性能 · 本地 Web 配置中心。
+# 💊 ccpill
+
+**A pill-styled, blazing-fast statusline for Claude Code**
+
+胶囊视觉 · Go 原生性能 · 本地 Web 配置中心 · 高度自定义
+
+![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-a6e3a1)
+![Segments](https://img.shields.io/badge/Segments-74-cba6f7)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-statusline-fab387)
 
 ![ccpill · 双行默认布局（Catppuccin 薄胶囊）](docs/assets/preview.png)
 
-**状态：V0.1 可用**（2026-07-15 立项，同日全量功能上线）
+</div>
 
-## 快速上手
+> **状态：V0.1 可用**（2026-07-15 立项，同日全量功能上线）
+
+## ✨ 特性
+
+- 💊 **胶囊视觉** —— Catppuccin 薄胶囊默认主题；胶囊背景可一键关闭，退化为彩色文字 + `│` 分隔的轻量模式
+- ⚡ **快** —— Go 单二进制，渲染热路径 ~0.6ms；重数据全部惰性采集 + 独立缓存，任何数据源失败都不拖慢状态栏
+- 🧩 **74 个 Segment** —— 会话 / 费用 / 限额 / Git 全家桶 / 系统 / OAuth 用量，全量对齐主流友商
+- 🎛️ **Web 配置中心** —— `ccpill --config`：1-3 行拖拽布局、真实会话数据实时预览、所见即所得
+- 🎨 **高度自定义** —— 每颗胶囊独立 RGB 前景 / 底色 / 前缀 / 加粗；自定义插槽把任何文本或命令输出放上状态栏
+- 🔌 **一键上岗** —— `--install` 写入 settings.json（自动备份），`--uninstall` 干净卸载
+
+## 🚀 快速上手
 
 ```bash
 # 1. 构建（或从 Releases 下载，V0.3 起）
@@ -37,7 +56,12 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 74 个 Segment
+## 🧩 Segment 总览（74 个）
+
+四大类，全部在 Web 配置中心拖拽启停。点开分类查看完整清单：
+
+<details>
+<summary><b>核心件（28 个）</b> —— 模型 / 上下文 / 费用 / 限额 / Git / 系统 / 自定义</summary>
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -70,7 +94,10 @@ go build -o ccpill.exe .
 | `text` | 自定义静态文本 | config `custom_text` |
 | `cmd` | 自定义命令输出首行（1s 超时，10s 缓存） | config `custom_command` |
 
-### Git 全家桶（对齐 ccstatusline 28 个 git widget + claude-powerline 独有项）
+</details>
+
+<details>
+<summary><b>Git 全家桶（14 个）</b> —— 对齐 ccstatusline 28 个 git widget + claude-powerline 独有项</summary>
 
 | ID | 显示 | 说明 |
 |----|------|------|
@@ -89,7 +116,10 @@ go build -o ccpill.exe .
 > 轻数据（staged/unstaged/untracked/conflicts/stash/upstream）全部来自原有 porcelain v2 **单次采集顺手解析**，零额外开销；
 > 重数据（diff 行数/tag/age/remote）各自惰性——不拖进布局就一个子进程都不跑。
 
-### 全品类对齐件（14 个）
+</details>
+
+<details>
+<summary><b>全品类对齐件（14 个）</b> —— 会话元信息 / token 速率 / 系统 / OAuth 用量</summary>
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -113,9 +143,12 @@ go build -o ccpill.exe .
 > voice/remote-control 状态（数据源为 ccstatusline 私有 hook 生态）；separator/flex-separator/link/custom-symbol
 > （胶囊设计自带分隔与自定义文本，OSC8 链接终端支持参差）。
 
-### 细粒度拆分件（18 个）
+</details>
 
-合并型胶囊的单项版本，可自由组合排布（对齐 ccstatusline 的 widget 粒度）：
+<details>
+<summary><b>细粒度拆分件（18 个）</b> —— 合并型胶囊的单项版本，自由组合排布</summary>
+
+对齐 ccstatusline 的 widget 粒度：
 
 | 母件 | 拆分件 |
 |------|--------|
@@ -130,7 +163,9 @@ go build -o ccpill.exe .
 > 费用类 segment 采用 **auto 模式**：transcript 自带 `costUSD` 直接用（老版本 Claude Code）；
 > 新版不写该字段，按 `message.model` 查内嵌定价表重算（含 5m/1h 缓存写价与缓存读价）。
 
-## 配置
+</details>
+
+## ⚙️ 配置
 
 配置文件：`~/.claude/ccpill/config.toml`（`CLAUDE_CONFIG_DIR` 优先）。推荐用 `ccpill --config` 可视化编辑，手改示例：
 
@@ -175,19 +210,21 @@ color = "#f5c2e7"
 - `lines` 支持 1-3 行，每行填 segment ID，未知 ID 自动忽略（向前兼容）
 - Web 配置中心与终端渲染共用同一 compose 层，**所见即所得**
 
-## 性能
+## 🏎️ 性能
 
-- 渲染热路径 ~0.6ms（sample 输入 hyperfine 实测均值 620µs）
-- transcript 全量扫描（1.6GB）冷 ~5s → 结果缓存 60s，热路径 ~40ms
-- git/PR/MCP/API 各自独立 TTL 缓存，全部尽力而为——任何数据源失败不影响其余 segment
+| 路径 | 耗时 |
+|------|------|
+| 渲染热路径 | **~0.6ms**（sample 输入 hyperfine 实测均值 620µs） |
+| transcript 全量扫描（1.6GB） | 冷 ~5s → 结果缓存 60s，热路径 ~40ms |
+| git / PR / MCP / API | 各自独立 TTL 缓存，尽力而为——任何数据源失败不影响其余 segment |
 
-## 文档
+## 📚 文档
 
 - **使用指南（推荐先读）**：[`docs/USAGE.md`](docs/USAGE.md) —— 布局拖拽、色点外观面板、自定义插槽实例、FAQ
 - 产品需求：`docs/PRD.md`
 - 竞品拆解笔记：`docs/research/`（ccstatusline / CCometixLine / ccusage 源码级拆解）
 
-## 开发
+## 🛠️ 开发
 
 ```bash
 go build -o ccpill.exe .
@@ -195,6 +232,6 @@ go vet ./... && go test ./...
 ./ccpill.exe < testdata/sample.json   # 本地预览
 ```
 
-## License
+## 📄 License
 
 [MIT](LICENSE)
