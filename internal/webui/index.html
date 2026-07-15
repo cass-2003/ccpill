@@ -15,14 +15,14 @@
   header { padding:18px 28px; background:var(--mantle); border-bottom:1px solid var(--surface0); display:flex; align-items:center; gap:12px; }
   header h1 { font-size:21px; }
   header .tag { font-size:12.5px; background:var(--surface0); color:var(--mauve); padding:3px 12px; border-radius:12px; }
-  main { max-width:1200px; margin:0 auto; padding:26px 28px 60px; }
-  .card { background:var(--mantle); border:1px solid var(--surface0); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
-  .card h2 { font-size:17px; color:var(--subtext); margin-bottom:5px; font-weight:600; letter-spacing:.5px; }
+  main { max-width:1200px; margin:0 auto; padding:34px 28px 80px; }
+  .card { background:var(--mantle); border:1px solid var(--surface0); border-radius:14px; padding:26px 30px; margin-bottom:28px; }
+  .card h2 { font-size:17px; color:var(--subtext); margin-bottom:7px; font-weight:600; letter-spacing:.5px; }
   .card h2 .en { color:var(--overlay); font-weight:400; font-size:13.5px; margin-left:8px; }
-  .card .sub { font-size:13.5px; color:var(--overlay); margin-bottom:14px; line-height:1.65; }
+  .card .sub { font-size:13.5px; color:var(--overlay); margin-bottom:20px; line-height:1.75; }
   /* 预览区 */
-  #preview { background:var(--crust); border-radius:10px; padding:15px 17px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
-  #preview .pline { display:flex; gap:9px; align-items:center; padding:5px 0; white-space:nowrap; }
+  #preview { background:var(--crust); border-radius:12px; padding:20px 22px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
+  #preview .pline { display:flex; gap:10px; align-items:center; padding:7px 0; white-space:nowrap; }
   #preview .pl { border-radius:20px; padding:1px 12px; line-height:1.55; font-size:14px; }
   #preview .noplbar { display:inline-flex; gap:0; }
   #srcnote { font-size:13px; color:var(--overlay); margin-top:9px; }
@@ -33,8 +33,8 @@
   .chip.off::after { content:'示例'; font-size:11.5px; color:var(--peach); margin-left:5px; }
   #preview .smp { opacity:.55; outline:1px dashed var(--overlay); outline-offset:1px; }
   /* 控制区 */
-  .controls { display:flex; gap:22px; flex-wrap:wrap; }
-  .ctl { display:flex; flex-direction:column; gap:7px; }
+  .controls { display:flex; gap:34px; flex-wrap:wrap; }
+  .ctl { display:flex; flex-direction:column; gap:9px; }
   .ctl label { font-size:13.5px; color:var(--subtext); }
   select { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:8px 13px; font-size:14.5px; }
   input[type=text] { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:8px 13px; font-size:14.5px; min-width:300px; font-family:Consolas,monospace; }
@@ -45,27 +45,27 @@
   .toggle input:checked + .knob { background:var(--green); }
   .toggle input:checked + .knob::after { left:21px; background:var(--base); }
   /* 行编辑器 */
-  .line-editor { border:1px dashed var(--surface1); border-radius:10px; min-height:50px; padding:9px 11px; display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .line-editor { border:1px dashed var(--surface1); border-radius:12px; min-height:58px; padding:12px 14px; display:flex; gap:11px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
   .line-editor.dragover { border-color:var(--mauve); background:rgba(203,166,247,.06); }
   .line-editor .hint { color:var(--overlay); font-size:13.5px; }
-  .lrow { display:flex; gap:10px; align-items:flex-start; }
-  .lrow .ltag { width:50px; padding-top:16px; color:var(--overlay); font-size:13.5px; flex-shrink:0; }
-  .chip { background:var(--surface0); border:1px solid var(--surface1); color:var(--text); border-radius:17px; padding:5px 15px; font-size:14px; cursor:grab; user-select:none; }
+  .lrow { display:flex; gap:12px; align-items:flex-start; }
+  .lrow .ltag { width:52px; padding-top:20px; color:var(--overlay); font-size:13.5px; flex-shrink:0; }
+  .chip { background:var(--surface0); border:1px solid var(--surface1); color:var(--text); border-radius:18px; padding:6px 16px; font-size:14px; cursor:grab; user-select:none; }
   .chip:active { cursor:grabbing; }
   .chip.ghost { opacity:.35; }
   .chip .zh { color:var(--subtext); font-size:12.5px; margin-left:6px; }
   /* segment 功能对照表 */
-  #legend .lgtitle { font-size:14.5px; font-weight:700; color:var(--subtext); margin:16px 0 9px; padding-bottom:6px; border-bottom:1px solid var(--surface0); }
+  #legend .lgtitle { font-size:14.5px; font-weight:700; color:var(--subtext); margin:26px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--surface0); }
   #legend .lgtitle:first-child { margin-top:2px; }
   #legend .lgtitle .en { font-weight:400; color:var(--overlay); margin-left:8px; }
-  #legend .lgitems { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:9px 18px; }
-  #legend .lg { display:flex; gap:11px; font-size:13.5px; line-height:1.6; padding:8px 10px; border-radius:8px; background:var(--crust); }
+  #legend .lgitems { display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:12px 22px; }
+  #legend .lg { display:flex; gap:12px; font-size:13.5px; line-height:1.65; padding:11px 13px; border-radius:10px; background:var(--crust); }
   #legend .lg b { color:var(--mauve); font-family:Consolas,monospace; font-weight:600; min-width:76px; flex-shrink:0; }
   #legend .lg .nm { color:var(--text); }
   #legend .lg .ds { color:var(--overlay); font-size:13px; }
-  #palette { display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
+  #palette { display:flex; gap:11px; flex-wrap:wrap; align-items:center; }
   #palette .chip { border-style:dashed; color:var(--subtext); }
-  #palette .grouptag { flex-basis:100%; font-size:12.5px; color:var(--overlay); margin-top:7px; }
+  #palette .grouptag { flex-basis:100%; font-size:12.5px; color:var(--overlay); margin-top:12px; }
   #palette .grouptag:first-child { margin-top:0; }
   .note { font-size:13px; color:var(--overlay); margin-top:6px; }
   /* 保存 */
@@ -110,9 +110,13 @@
 
   <div class="card">
     <h2>布局编排<span class="en">Layout Editor</span></h2>
-    <div class="sub">拖动胶囊在行间移动排序（最多 3 行）；拖回下方仓库即停用。悬停任意胶囊可查看功能说明。<br>Drag chips between rows to reorder (up to 3 lines); drop into the pool below to disable. Hover any chip for its description.</div>
+    <div class="sub">拖动胶囊在行间移动排序（最多 3 行）；拖到下方「仓库」卡片即停用。悬停任意胶囊可查看功能说明。<br>Drag chips between rows to reorder (up to 3 lines); drop into the pool card below to disable. Hover any chip for its description.</div>
     <div id="lines"></div>
-    <div style="margin:14px 0 6px; color:var(--subtext); font-size:12px;">未启用的 segment 仓库 <span style="color:var(--overlay)">Idle Segment Pool</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Segment 仓库<span class="en">Idle Segment Pool</span></h2>
+    <div class="sub">未启用的 segment，按功能块分组。把想要的拖进上方任意一行即启用。<br>Disabled segments, grouped by function. Drag one into a row above to enable it.</div>
     <div class="line-editor" id="palette"></div>
   </div>
 
