@@ -3,10 +3,10 @@ package compose
 import (
 	"testing"
 
-	"ccpill/internal/config"
-	"ccpill/internal/input"
-	"ccpill/internal/segment"
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/input"
+	"github.com/cass-2003/ccpill/internal/segment"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 func strPtr(s string) *string { return &s }

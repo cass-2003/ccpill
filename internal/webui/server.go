@@ -14,12 +14,12 @@ import (
 	"runtime"
 	"strings"
 
-	"ccpill/internal/compose"
-	"ccpill/internal/config"
-	"ccpill/internal/input"
-	"ccpill/internal/render"
-	"ccpill/internal/segment"
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/compose"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/input"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/segment"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 //go:embed index.html

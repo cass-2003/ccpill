@@ -5,9 +5,9 @@ package segment
 import (
 	"strings"
 
-	"ccpill/internal/config"
-	"ccpill/internal/render"
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 // RenderSlot 渲染一个自定义插槽；无内容返回 nil。

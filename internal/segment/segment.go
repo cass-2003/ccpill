@@ -6,14 +6,14 @@ import (
 	"sort"
 	"time"
 
-	"ccpill/internal/config"
-	"ccpill/internal/gitinfo"
-	"ccpill/internal/input"
-	"ccpill/internal/render"
-	"ccpill/internal/theme"
-	"ccpill/internal/transcript"
-	"ccpill/internal/usage"
-	"ccpill/internal/usageapi"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/gitinfo"
+	"github.com/cass-2003/ccpill/internal/input"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/usage"
+	"github.com/cass-2003/ccpill/internal/usageapi"
 )
 
 // Context 是一次渲染的共享数据：stdin 解析结果 + 惰性采集的外部信息。

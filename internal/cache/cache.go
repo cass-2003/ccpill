@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/config"
 )
 
 type envelope struct {

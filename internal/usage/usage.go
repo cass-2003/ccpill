@@ -10,8 +10,8 @@ import (
 	"sort"
 	"time"
 
-	"ccpill/internal/cache"
-	"ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/cache"
+	"github.com/cass-2003/ccpill/internal/transcript"
 )
 
 const (

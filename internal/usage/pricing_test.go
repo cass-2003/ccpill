@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/transcript"
 )
 
 func almost(a, b float64) bool { return math.Abs(a-b) < 1e-9 }

@@ -5,11 +5,11 @@ package compose
 import (
 	"strings"
 
-	"ccpill/internal/config"
-	"ccpill/internal/input"
-	"ccpill/internal/render"
-	"ccpill/internal/segment"
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/input"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/segment"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 // Item 是一次渲染中某个已启用 segment 的结果；Pill 为 nil 表示条件不满足而隐藏。

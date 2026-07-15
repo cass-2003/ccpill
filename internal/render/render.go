@@ -6,7 +6,7 @@ package render
 import (
 	"strings"
 
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 // Level 是 segment 的预警等级，决定胶囊配色。

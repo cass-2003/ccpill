@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/theme"
 )
 
 var (

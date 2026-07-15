@@ -6,12 +6,12 @@ import (
 	"io"
 	"os"
 
-	"ccpill/internal/compose"
-	"ccpill/internal/config"
-	"ccpill/internal/input"
-	"ccpill/internal/render"
-	"ccpill/internal/theme"
-	"ccpill/internal/webui"
+	"github.com/cass-2003/ccpill/internal/compose"
+	"github.com/cass-2003/ccpill/internal/config"
+	"github.com/cass-2003/ccpill/internal/input"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/theme"
+	"github.com/cass-2003/ccpill/internal/webui"
 )
 
 const version = "0.1.0-dev"

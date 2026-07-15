@@ -8,7 +8,7 @@ package usage
 import (
 	"strings"
 
-	"ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/transcript"
 )
 
 type price struct{ in, out float64 } // $/1M tokens

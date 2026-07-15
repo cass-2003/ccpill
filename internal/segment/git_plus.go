@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/render"
 )
 
 func init() {

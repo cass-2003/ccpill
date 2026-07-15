@@ -1,4 +1,4 @@
-module ccpill
+module github.com/cass-2003/ccpill
 
 go 1.25.0
 

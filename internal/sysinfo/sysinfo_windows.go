@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"ccpill/internal/cache"
+	"github.com/cass-2003/ccpill/internal/cache"
 )
 
 type cpuSample struct {

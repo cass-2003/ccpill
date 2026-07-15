@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"ccpill/internal/render"
-	"ccpill/internal/sysinfo"
-	"ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/sysinfo"
+	"github.com/cass-2003/ccpill/internal/transcript"
 )
 
 func init() {

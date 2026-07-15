@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"ccpill/internal/cache"
-	"ccpill/internal/render"
-	"ccpill/internal/transcript"
+	"github.com/cass-2003/ccpill/internal/cache"
+	"github.com/cass-2003/ccpill/internal/render"
+	"github.com/cass-2003/ccpill/internal/transcript"
 )
 
 func init() {
