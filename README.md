@@ -3,6 +3,8 @@
 > A pill-styled, blazing-fast statusline for Claude Code. Written in Go.
 > Claude Code 状态栏工具：胶囊视觉 · Go 原生性能 · 本地 Web 配置中心。
 
+![ccpill · 双行默认布局（Catppuccin 薄胶囊）](docs/assets/preview.png)
+
 **状态：V0.1 可用**（2026-07-15 立项，同日全量功能上线）
 
 ## 快速上手
