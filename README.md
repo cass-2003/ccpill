@@ -63,6 +63,7 @@ ccpill --install    # 一键上岗——写入 settings.json（自动备份）
 | `ccpill --install` | 一键上岗：写入 `~/.claude/settings.json` 的 `statusLine`（时间戳备份 + 原子写） |
 | `ccpill --config` | 打开本地 Web 配置中心：主题/图标集/胶囊开关/1-3 行拖拽布局，**真实会话数据实时预览** |
 | `ccpill --uninstall` | 卸载：移除 `statusLine` 配置（同样先备份） |
+| `ccpill --import-ccstatusline [path]` | **从 ccstatusline 一键迁移**：布局逐行映射、custom text/command 转插槽、hex 色与加粗转 overrides；不支持项列明原因不中断 |
 | `ccpill --version` | 版本号 |
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。

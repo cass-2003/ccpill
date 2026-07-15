@@ -41,6 +41,16 @@ func main() {
 				os.Exit(1)
 			}
 			return
+		case "--import-ccstatusline":
+			path := ""
+			if len(os.Args) > 2 {
+				path = os.Args[2]
+			}
+			if err := importCCStatusline(path); err != nil {
+				fmt.Fprintln(os.Stderr, "ccpill:", err)
+				os.Exit(1)
+			}
+			return
 		case "--help", "-h":
 			fmt.Println(`ccpill 💊 — Claude Code 胶囊状态栏
 
@@ -48,6 +58,8 @@ func main() {
   ccpill --install     一键上岗（写入 Claude Code settings.json，自动备份）
   ccpill --config      打开 Web 配置中心（主题/布局/预警，实时预览）
   ccpill --uninstall   卸载（移除 statusLine 配置）
+  ccpill --import-ccstatusline [path]
+                       从 ccstatusline 迁移布局（默认读 ~/.config/ccstatusline/settings.json）
   ccpill --version     版本
 
 无参数时从 stdin 读 Claude Code 状态 JSON 并渲染状态栏（由 Claude Code 调用）。

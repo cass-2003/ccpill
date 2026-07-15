@@ -143,3 +143,17 @@ color = "#f5c2e7"
 - **某个 segment 一直不显示** → 看预览下方折叠条里的原因说明（多数是条件不满足：不在 git 仓库、没有 stash、API 没凭据等）
 - **weeklysonnet / weeklyopus / overage 不显示** → 这三个走 claude.ai OAuth 用量接口，走第三方中转渠道时没有官方凭据，拿不到数据属正常
 - **改了没生效** → 点了「保存生效」吗？预览只是试穿，保存才落盘
+
+## 8. 从 ccstatusline 迁移
+
+```bash
+ccpill --import-ccstatusline            # 默认读 ~/.config/ccstatusline/settings.json
+ccpill --import-ccstatusline <path>     # 或指定路径
+```
+
+- 布局逐行映射（87 个 widget type 对照表内置），最多 3 行
+- `custom-text` / `custom-command` 自动转为 ccpill 插槽（`ccs-*`）
+- widget 的 hex 颜色与加粗转为逐 segment overrides（命名色 / gradient 不迁移）
+- 不支持项（separator、jj-*、voice 等）逐条列出原因，不中断迁移
+- 覆盖前自动备份原 config.toml 到 `.bak-before-import`
+- 主题 / 分隔符体系不迁移（两家视觉形态不同），迁移后用 `ccpill --config` 微调
