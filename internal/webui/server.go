@@ -190,6 +190,34 @@ func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) 
 		text, fg = L("commit ")+"3h", t.Clock
 	case "gitremote":
 		text, fg = "owner/repo", t.Muted
+	case "sessionname":
+		text, fg = "修复登录超时", t.Extra
+	case "msgcount":
+		text, fg = L("msg ")+"23", t.Muted
+	case "resptime":
+		text, fg = L("resp ")+"48s", t.Clock
+	case "tokwrite":
+		text, fg = L("cachew ")+"1.8M", t.Context
+	case "speedin":
+		text, fg = L("in ")+"12/s", t.Cost
+	case "speedtotal":
+		text, fg = L("tok∑ ")+"8.2k/s", t.Cost
+	case "ctxwin":
+		text, fg = L("win ")+"1.0M", t.Context
+	case "ctxusable":
+		text, fg = L("ctx可用 ")+"65%", t.Context
+	case "memfree":
+		text, fg = L("free ")+"12.4G/32G", t.Clock
+	case "termwidth":
+		text, fg = L("term ")+"213", t.Muted
+	case "cachetimer":
+		text, fg = L("cache ")+"⏳ 3m40s", t.Context
+	case "weeklysonnet":
+		text, fg = L("7d Sonnet ")+"8%", t.Rate
+	case "weeklyopus":
+		text, fg = L("7d Opus ")+"62%", t.Rate
+	case "overage":
+		text, fg = L("超额 ")+ic.Cost+"106/"+ic.Cost+"3894", t.Cost
 	case "blockpct":
 		text, fg = L("5h ")+"34%", t.Rate
 	case "blocktime":

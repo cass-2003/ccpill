@@ -11,7 +11,9 @@ import (
 	"ccpill/internal/input"
 	"ccpill/internal/render"
 	"ccpill/internal/theme"
+	"ccpill/internal/transcript"
 	"ccpill/internal/usage"
+	"ccpill/internal/usageapi"
 )
 
 // Context 是一次渲染的共享数据：stdin 解析结果 + 惰性采集的外部信息。
@@ -41,6 +43,12 @@ type Context struct {
 	gitFSOnce     bool // FindRoot + State（纯文件系统）
 	gitRoot       string
 	gitState      string
+
+	metaOnce bool
+	meta     transcript.Meta
+
+	apiOnce bool
+	apiData usageapi.Data
 }
 
 // L 返回文字前缀；紧凑模式（config minimal）下为空串，只留数值与图标。
@@ -123,6 +131,26 @@ func (c *Context) gitFS() (root, state string) {
 		c.gitFSOnce = true
 	}
 	return c.gitRoot, c.gitState
+}
+
+// Meta 惰性扫描本会话 transcript 的元信息（会话名/消息数/响应耗时）。
+func (c *Context) Meta() transcript.Meta {
+	if !c.metaOnce {
+		if path := c.Status.TranscriptPath; path != "" {
+			c.meta = transcript.ScanMeta(path)
+		}
+		c.metaOnce = true
+	}
+	return c.meta
+}
+
+// API 惰性请求 OAuth 用量接口（内部 5 分钟缓存，失败静默 OK=false）。
+func (c *Context) API() usageapi.Data {
+	if !c.apiOnce {
+		c.apiData = usageapi.Fetch()
+		c.apiOnce = true
+	}
+	return c.apiData
 }
 
 // GitRepoRoot 返回仓库根目录路径（非仓库为空串）。

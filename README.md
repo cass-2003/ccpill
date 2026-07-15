@@ -35,7 +35,7 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 60 个 Segment
+## 74 个 Segment
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -86,6 +86,30 @@ go build -o ccpill.exe .
 
 > 轻数据（staged/unstaged/untracked/conflicts/stash/upstream）全部来自原有 porcelain v2 **单次采集顺手解析**，零额外开销；
 > 重数据（diff 行数/tag/age/remote）各自惰性——不拖进布局就一个子进程都不跑。
+
+### 全品类对齐件（14 个）
+
+| ID | 显示 | 数据源 |
+|----|------|--------|
+| `sessionname` | `修复登录超时` | `/rename` 写入 transcript 的 custom-title |
+| `msgcount` | `msg 23` | 本会话用户消息数（排除 tool_result 回写） |
+| `resptime` | `resp 48s` | 提问→首个回复的平均耗时（transcript 时间戳配对） |
+| `tokwrite` | `cachew 1.8M` | 会话缓存写 token（cache-read 的姊妹件） |
+| `speedin` / `speedtotal` | `in 12/s` / `tok∑ 8.2k/s` | 最近 5 分钟输入/全量 token 速度 |
+| `ctxwin` | `win 1.0M` | stdin `context_window_size` |
+| `ctxusable` | `ctx可用 65%` | 自动压缩阈值（80% 可用区）内的占用，≥90% 红警 |
+| `memfree` | `free 12.4G/32G` | Win32 GlobalMemoryStatusEx（零子进程） |
+| `termwidth` | `term 213` | CONOUT$ 控制台缓冲区（stdout 是管道时照常可用） |
+| `cachetimer` | `cache ⏳ 3m40s` | prompt cache TTL 倒计时，自动识别 5m/1h 档，过期隐藏 |
+| `weeklysonnet` / `weeklyopus` | `7d Sonnet 8%` | **OAuth 用量接口**分模型周限额（stdin 没有的数据） |
+| `overage` | `超额 $106/$3894` | OAuth 用量接口超额（overage）已用/月上限 |
+
+> OAuth 用量接口与 ccstatusline / CCometixLine 同源（`/api/oauth/usage`，凭据读 Claude Code 自己的
+> `.credentials.json`，只读不回显）；5 分钟缓存，失败静默隐藏，绝不拖慢渲染。
+>
+> **未对齐项及原因**：Jujutsu 8 件（jj 用户群极小，本机无 jj 无法验证，有需求再加）；
+> voice/remote-control 状态（数据源为 ccstatusline 私有 hook 生态）；separator/flex-separator/link/custom-symbol
+> （胶囊设计自带分隔与自定义文本，OSC8 链接终端支持参差）。
 
 ### 细粒度拆分件（18 个）
 

@@ -85,3 +85,35 @@ func MemPercent() (float64, bool) {
 	}
 	return float64(m.MemoryLoad), true
 }
+
+// MemBytes 返回（可用, 总量）物理内存字节数。
+func MemBytes() (avail, total uint64, ok bool) {
+	var m memStatusEx
+	m.Length = uint32(unsafe.Sizeof(m))
+	r, _, _ := procGlobalMemStatus.Call(uintptr(unsafe.Pointer(&m)))
+	if r == 0 {
+		return 0, 0, false
+	}
+	return m.AvailPhys, m.TotalPhys, true
+}
+
+// TermWidth 返回控制台列宽。statusline 的 stdout 是管道，改查 CONOUT$（当前
+// 控制台的活动缓冲区）；无控制台（如服务进程）时返回 false。
+func TermWidth() (int, bool) {
+	h, err := windows.CreateFile(windows.StringToUTF16Ptr("CONOUT$"),
+		windows.GENERIC_READ|windows.GENERIC_WRITE, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE,
+		nil, windows.OPEN_EXISTING, 0, 0)
+	if err != nil {
+		return 0, false
+	}
+	defer windows.CloseHandle(h)
+	var info windows.ConsoleScreenBufferInfo
+	if windows.GetConsoleScreenBufferInfo(h, &info) != nil {
+		return 0, false
+	}
+	w := int(info.Window.Right-info.Window.Left) + 1
+	if w <= 0 {
+		return 0, false
+	}
+	return w, true
+}

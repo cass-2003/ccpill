@@ -7,3 +7,7 @@ package sysinfo
 func CPUPercent() (float64, bool) { return 0, false }
 
 func MemPercent() (float64, bool) { return 0, false }
+
+func MemBytes() (avail, total uint64, ok bool) { return 0, 0, false }
+
+func TermWidth() (int, bool) { return 0, false }
