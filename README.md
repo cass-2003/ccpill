@@ -147,8 +147,27 @@ custom_command = ""           # cmd segment 执行的命令（输出首行，1s 
 
 lines = [
   ["model", "context", "cost", "today", "burn", "block"],
-  ["dir", "git", "speed", "session", "clock"],
+  ["dir", "git", "speed", "session", "clock", "slot:ip"],
 ]
+
+# 逐 segment 外观覆盖：前景色 / 底色 / 前缀 / 加粗（预警反色时不生效，保证红警可读）
+# Web 配置中心里点任意胶囊的色点即可可视化编辑
+[overrides.model]
+color = "#ff8800" # 前景色
+bg = "#11111b"    # 单颗胶囊底色（与主题统一底色不同）
+label = "M "      # 前缀替换：删掉此行=默认前缀，空串=去前缀（比全局 minimal 更细），其他=自定义文字
+bold = true
+
+# 自定义插槽：想加几个加几个，布局里用 "slot:<name>" 引用
+[[slots]]
+name = "ip"
+command = "curl -s ifconfig.me"  # 与 text 二选一，都填时 text 优先
+color = "#89b4fa"                # 空 = 主题 Extra 色
+
+[[slots]]
+name = "备注"
+text = "搬砖中"
+color = "#f5c2e7"
 ```
 
 - `lines` 支持 1-3 行，每行填 segment ID，未知 ID 自动忽略（向前兼容）

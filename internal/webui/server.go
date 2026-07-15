@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"ccpill/internal/compose"
 	"ccpill/internal/config"
@@ -49,6 +50,8 @@ type pillJSON struct {
 	Seg    string     `json:"seg"`
 	Text   string     `json:"text"`
 	FG     string     `json:"fg"`
+	BG     string     `json:"bg,omitempty"` // 单颗胶囊底色覆盖
+	Bold   bool       `json:"bold,omitempty"`
 	Warn   bool       `json:"warn"`
 	Sample bool       `json:"sample"`          // true = 条件未满足，以示例数据占位展示
 	Spans  []spanJSON `json:"spans,omitempty"` // 胶囊内多色片段（如 gitab 的 +绿/−红）
@@ -69,10 +72,25 @@ func spansJSON(spans []render.Span) []spanJSON {
 // 前缀跟随紧凑模式（minimal），与真实渲染保持一致。
 func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) *pillJSON {
 	L := func(prefix string) string {
+		if o, ok := cfg.Overrides[id]; ok && o.Label != nil {
+			return *o.Label
+		}
 		if cfg.Minimal {
 			return ""
 		}
 		return prefix
+	}
+	// 自定义插槽：内容未产出时以槽名占位（颜色跟随槽配置）
+	if name, ok := strings.CutPrefix(id, "slot:"); ok {
+		s := cfg.FindSlot(name)
+		if s == nil {
+			return nil
+		}
+		fgc := t.Extra
+		if rgb, ok := theme.ParseHex(s.Color); ok {
+			fgc = rgb
+		}
+		return &pillJSON{Seg: id, Text: name, FG: fgc.Hex(), Sample: true}
 	}
 	var text string
 	var fg theme.RGB
@@ -262,10 +280,25 @@ func previewPayload(cfg config.Config, status *input.Status, real bool) map[stri
 		line := make([]pillJSON, 0, len(row))
 		for _, it := range row {
 			if it.Pill != nil {
-				line = append(line, pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Warn: it.Pill.Level == render.Warn, Spans: spansJSON(it.Pill.Spans)})
+				p := pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Bold: it.Pill.Bold,
+					Warn: it.Pill.Level == render.Warn, Spans: spansJSON(it.Pill.Spans)}
+				if it.Pill.BG != nil {
+					p.BG = it.Pill.BG.Hex()
+				}
+				line = append(line, p)
 				continue
 			}
 			if sp := samplePill(it.ID, cfg, t, ic); sp != nil {
+				// 示例胶囊同样吃外观覆盖，改样式时预览即时可见
+				if o, ok := cfg.Overrides[it.ID]; ok {
+					if rgb, ok := theme.ParseHex(o.Color); ok {
+						sp.FG, sp.Spans = rgb.Hex(), nil
+					}
+					if rgb, ok := theme.ParseHex(o.BG); ok {
+						sp.BG = rgb.Hex()
+					}
+					sp.Bold = sp.Bold || o.Bold
+				}
 				line = append(line, *sp)
 				sample = append(sample, it.ID)
 			}

@@ -11,6 +11,18 @@ type RGB struct{ R, G, B uint8 }
 // Hex 返回 #rrggbb 形式（Web 配置页用）。
 func (c RGB) Hex() string { return fmt.Sprintf("#%02x%02x%02x", c.R, c.G, c.B) }
 
+// ParseHex 解析 "#rrggbb"（大小写均可）；非法输入返回 ok=false。
+func ParseHex(s string) (RGB, bool) {
+	if len(s) != 7 || s[0] != '#' {
+		return RGB{}, false
+	}
+	var c RGB
+	if _, err := fmt.Sscanf(s[1:], "%02x%02x%02x", &c.R, &c.G, &c.B); err != nil {
+		return RGB{}, false
+	}
+	return c, true
+}
+
 // Theme 定义一套配色：胶囊统一底色 + 按语义类别的前景色 + 预警色。
 type Theme struct {
 	Name   string

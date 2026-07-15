@@ -24,6 +24,36 @@ type Config struct {
 	// 自定义 segment（text / cmd）
 	CustomText    string `toml:"custom_text" json:"custom_text"`       // text segment 显示的静态文本
 	CustomCommand string `toml:"custom_command" json:"custom_command"` // cmd segment 执行的命令（取输出首行，1s 超时，10s 缓存）
+	// 逐 segment 外观覆盖：ID →（前景/底色/前缀/加粗）。预警反色时不生效，保证红警可读
+	Overrides map[string]Override `toml:"overrides" json:"overrides"`
+	// 自定义插槽：任意多个，布局里以 "slot:<name>" 引用
+	Slots []Slot `toml:"slots" json:"slots"`
+}
+
+// Override 是单个 segment 的外观自定义。
+type Override struct {
+	Color string  `toml:"color,omitempty" json:"color,omitempty"` // "#rrggbb" 前景色
+	BG    string  `toml:"bg,omitempty" json:"bg,omitempty"`       // "#rrggbb" 单颗胶囊底色
+	Label *string `toml:"label" json:"label,omitempty"`           // 前缀替换：nil=默认，""=去前缀，其他=自定义文字
+	Bold  bool    `toml:"bold,omitempty" json:"bold,omitempty"`
+}
+
+// Slot 是一个自定义插槽：静态文本或命令输出，可指定 RGB 前景色。
+type Slot struct {
+	Name    string `toml:"name" json:"name"`
+	Text    string `toml:"text" json:"text"`       // 与 Command 二选一；都填时 Text 优先
+	Command string `toml:"command" json:"command"` // 取输出首行（1s 超时，10s 缓存）
+	Color   string `toml:"color" json:"color"`     // "#rrggbb"，空 = 主题 Extra 色
+}
+
+// FindSlot 按名字找插槽（布局 ID 形如 "slot:<name>"）。
+func (c Config) FindSlot(name string) *Slot {
+	for i := range c.Slots {
+		if c.Slots[i].Name == name {
+			return &c.Slots[i]
+		}
+	}
+	return nil
 }
 
 // Default 返回默认配置（设计稿 C 双行默认布局）。

@@ -23,6 +23,8 @@ type Context struct {
 	Icons  render.IconSet
 	Theme  theme.Theme
 	Cfg    config.Config
+	// Current 是正在渲染的 segment ID（compose 逐个设置，L() 查前缀覆盖用）
+	Current string
 
 	gitOnce bool
 	git     gitinfo.Info
@@ -51,8 +53,12 @@ type Context struct {
 	apiData usageapi.Data
 }
 
-// L 返回文字前缀；紧凑模式（config minimal）下为空串，只留数值与图标。
+// L 返回文字前缀。优先级：该 segment 的 label 覆盖（含空串=去前缀）>
+// 全局紧凑模式（minimal）> 默认前缀。
 func (c *Context) L(prefix string) string {
+	if o, ok := c.Cfg.Overrides[c.Current]; ok && o.Label != nil {
+		return *o.Label
+	}
 	if c.Cfg.Minimal {
 		return ""
 	}

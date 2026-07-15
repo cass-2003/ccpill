@@ -256,16 +256,22 @@ func (cmdSeg) Render(c *Context) *render.Pill {
 	if command == "" {
 		return nil
 	}
+	out := cachedCommand(command)
+	if out == "" {
+		return nil
+	}
+	return &render.Pill{Text: out, Color: c.Theme.Extra}
+}
+
+// cachedCommand 执行自定义命令并按命令内容做 10s 缓存（cmd segment 与插槽共用）。
+func cachedCommand(command string) string {
 	key := fmt.Sprintf("cmd-%x", sha1.Sum([]byte(command)))
 	var out string
 	if !cache.Get(key, 10*time.Second, &out) {
 		out = runCustomCommand(command)
 		cache.Put(key, out) // 失败也缓存空值，避免坏命令每次渲染都等满超时
 	}
-	if out == "" {
-		return nil
-	}
-	return &render.Pill{Text: out, Color: c.Theme.Extra}
+	return out
 }
 
 func runCustomCommand(command string) string {

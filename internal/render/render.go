@@ -28,7 +28,9 @@ type Pill struct {
 	Text  string
 	Color theme.RGB // Normal 时的前景色
 	Level Level
-	Spans []Span // 非空时逐段着色渲染；Text 仍需填完整文本（Warn 反色与回退场景用）
+	Spans []Span     // 非空时逐段着色渲染；Text 仍需填完整文本（Warn 反色与回退场景用）
+	BG    *theme.RGB // 单颗胶囊底色覆盖（nil = 主题统一底色；Warn 反色时不生效）
+	Bold  bool
 }
 
 // Options 控制渲染形态。
@@ -96,6 +98,9 @@ func Line(pills []Pill, opt Options) string {
 func renderPill(b *strings.Builder, p Pill, opt Options) {
 	t := opt.Theme
 	pillBG, textFG := t.PillBG, p.Color
+	if p.BG != nil {
+		pillBG = *p.BG
+	}
 	if p.Level == Warn {
 		// 预警胶囊整体反色：红底深字
 		pillBG, textFG = t.Warn, t.WarnFG
@@ -104,7 +109,11 @@ func renderPill(b *strings.Builder, p Pill, opt Options) {
 	if opt.CapL != "" {
 		b.WriteString(fg(pillBG) + opt.CapL + reset)
 	}
-	b.WriteString(bg(pillBG) + fg(textFG) + " ")
+	b.WriteString(bg(pillBG) + fg(textFG))
+	if p.Bold {
+		b.WriteString("\x1b[1m")
+	}
+	b.WriteString(" ")
 	if len(p.Spans) > 0 && p.Level != Warn { // Warn 反色时统一用 WarnFG 保证红底可读
 		for _, s := range p.Spans {
 			b.WriteString(fg(s.Color) + s.Text)
@@ -119,6 +128,9 @@ func renderPill(b *strings.Builder, p Pill, opt Options) {
 }
 
 func renderPlain(b *strings.Builder, p Pill, t theme.Theme) {
+	if p.Bold {
+		b.WriteString("\x1b[1m")
+	}
 	if len(p.Spans) > 0 && p.Level != Warn {
 		for _, s := range p.Spans {
 			b.WriteString(fg(s.Color) + s.Text)

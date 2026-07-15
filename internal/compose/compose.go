@@ -3,6 +3,8 @@
 package compose
 
 import (
+	"strings"
+
 	"ccpill/internal/config"
 	"ccpill/internal/input"
 	"ccpill/internal/render"
@@ -44,13 +46,46 @@ func Detail(cfg config.Config, status *input.Status) [][]Item {
 	for _, lineIDs := range cfg.Lines {
 		var row []Item
 		for _, id := range lineIDs {
-			seg := segment.Get(id)
-			if seg == nil {
+			ctx.Current = id
+			if seg := segment.Get(id); seg != nil {
+				pill := seg.Render(ctx)
+				ApplyOverride(cfg, id, pill)
+				row = append(row, Item{ID: id, Pill: pill})
 				continue
 			}
-			row = append(row, Item{ID: id, Pill: seg.Render(ctx)})
+			if name, ok := strings.CutPrefix(id, "slot:"); ok {
+				if s := cfg.FindSlot(name); s != nil {
+					pill := segment.RenderSlot(*s, ctx)
+					ApplyOverride(cfg, id, pill)
+					row = append(row, Item{ID: id, Pill: pill})
+				}
+				continue
+			}
+			// 未知 ID 忽略（向前兼容）
 		}
 		out = append(out, row)
 	}
 	return out
+}
+
+// ApplyOverride 应用用户的逐 segment 外观覆盖（前缀覆盖在 Context.L 里生效）。
+// 预警反色不覆盖（红警可读性优先）；显式指定前景色视为要整颗统一色，多色片段让位。
+func ApplyOverride(cfg config.Config, id string, pill *render.Pill) {
+	if pill == nil || pill.Level == render.Warn {
+		return
+	}
+	o, ok := cfg.Overrides[id]
+	if !ok {
+		return
+	}
+	if rgb, ok := theme.ParseHex(o.Color); ok {
+		pill.Color = rgb
+		pill.Spans = nil
+	}
+	if rgb, ok := theme.ParseHex(o.BG); ok {
+		pill.BG = &rgb
+	}
+	if o.Bold {
+		pill.Bold = true
+	}
 }

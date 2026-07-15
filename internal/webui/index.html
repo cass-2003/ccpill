@@ -45,6 +45,31 @@
   .ctl label { font-size:13.5px; color:var(--subtext); }
   select { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:8px 13px; font-size:14.5px; }
   input[type=text] { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:8px 13px; font-size:14.5px; min-width:300px; font-family:Consolas,monospace; }
+  /* 自定义插槽编辑行 */
+  .slotrow { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .slotrow input[type=text] { min-width:0; }
+  .slotrow .sname { width:120px; } .slotrow .sval { flex:1; min-width:220px; }
+  .slotrow select { background:var(--surface0); color:var(--text); border:1px solid var(--surface1); border-radius:8px; padding:8px 10px; font-size:14px; }
+  .slotrow input[type=color] { width:38px; height:36px; padding:2px; border:1px solid var(--surface1); border-radius:8px; background:var(--surface0); cursor:pointer; }
+  .slotrow .del { background:none; border:1px solid var(--surface1); color:var(--overlay); border-radius:8px; padding:7px 12px; cursor:pointer; font-size:14px; }
+  .slotrow .del:hover { color:var(--red); border-color:var(--red); }
+  .ghostbtn { background:none; border:1px dashed var(--surface1); color:var(--subtext); border-radius:9px; padding:9px 20px; cursor:pointer; font-size:14.5px; }
+  .ghostbtn:hover { border-color:var(--mauve); color:var(--mauve); }
+  /* 胶囊色点：点击开外观面板，右键全部重置 */
+  .chip .swatch { display:inline-block; width:11px; height:11px; border-radius:50%; margin-left:7px; border:1px solid var(--surface1); vertical-align:1px; cursor:pointer; }
+  .chip .swatch:hover { transform:scale(1.25); }
+  .chip .swatch.active { border-color:var(--mauve); box-shadow:0 0 4px var(--mauve); }
+  /* 逐 segment 外观面板 */
+  #ovrpanel { position:fixed; z-index:120; background:var(--mantle); border:1px solid var(--surface1); border-radius:12px; padding:16px 18px; box-shadow:0 12px 34px rgba(0,0,0,.6); min-width:330px; }
+  #ovrpanel .ovrtitle { font-weight:700; margin-bottom:12px; font-size:14.5px; }
+  #ovrpanel .ovrrow { display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:13.5px; color:var(--subtext); }
+  #ovrpanel .ovrrow > span:first-child { width:90px; }
+  #ovrpanel input[type=color] { width:44px; height:30px; padding:2px; border:1px solid var(--surface1); border-radius:7px; background:var(--surface0); cursor:pointer; }
+  #ovrpanel input[type=text] { flex:1; min-width:0; padding:6px 10px; font-size:13.5px; }
+  #ovrpanel button { background:var(--surface0); border:1px solid var(--surface1); color:var(--subtext); border-radius:7px; padding:6px 12px; cursor:pointer; font-size:13px; }
+  #ovrpanel button:hover { border-color:var(--mauve); color:var(--mauve); }
+  #ovrpanel .ovrhint { font-size:12.5px; color:var(--overlay); margin:-4px 0 10px; line-height:1.6; }
+  #ovrpanel .ck { display:flex; align-items:center; gap:7px; cursor:pointer; }
   .toggle { display:flex; align-items:center; gap:9px; cursor:pointer; padding:6px 0; font-size:14px; }
   .toggle input { display:none; }
   .knob { width:40px; height:22px; border-radius:11px; background:var(--surface1); position:relative; transition:.15s; }
@@ -140,6 +165,13 @@
       <div class="ctl"><label>自定义文本 Custom Text（text segment）</label><input type="text" id="customtext" placeholder="例如：搬砖中 / e.g. focus mode"></div>
       <div class="ctl"><label>自定义命令 Custom Command（cmd segment）</label><input type="text" id="customcmd" placeholder="例如：node --version"></div>
     </div>
+    <div class="sub" style="margin-top:20px">
+      <b>自定义插槽 Custom Slots</b>——想要几个加几个：起个名，填静态文本或命令（二选一，都填时文本优先），挑个颜色，
+      对应胶囊会出现在上方仓库区，拖进布局即用。<br>
+      Add as many slots as you like: name it, give it text or a command, pick a color — the chip shows up in the pool above.
+    </div>
+    <div id="slots"></div>
+    <button id="addslot" class="ghostbtn">＋ 添加插槽 Add Slot</button>
   </div>
 
   <div class="card">
@@ -357,9 +389,10 @@ function drawPreview(p) {
       } else {
         s.textContent = pill.text;
       }
+      if (pill.bold) s.style.fontWeight = '700';
       if (cfg.pills) {
         s.className = 'pl';
-        s.style.background = pill.warn ? t.warn : t.pill_bg;
+        s.style.background = pill.warn ? t.warn : (pill.bg || t.pill_bg);
         s.style.color = pill.warn ? t.warn_fg : pill.fg;
         if (!p.round) s.style.borderRadius = '4px'; // 平角端帽时预览同步方形
       } else {
@@ -396,24 +429,148 @@ function drawSample(sample) {
   document.getElementById('hiddensum').textContent =
     `ℹ️ ${sample.length} 个虚线胶囊为示例数据，条件满足时才在终端显示——点开看原因 / ${sample.length} dashed pills show sample data — expand for reasons`;
   document.getElementById('hiddenlist').innerHTML =
-    sample.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || '当前无数据 / no data right now'}</span>`).join('<br>');
+    sample.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || (id.startsWith('slot:') ? '插槽内容未填或命令无输出 / slot has no content yet' : '当前无数据 / no data right now')}</span>`).join('<br>');
 }
 
 async function refresh() {
   drawPreview(await api('/api/preview', cfg));
 }
 
+// 逐 segment 外观面板：前景色 / 底色 / 前缀替换 / 加粗
+function closeOverridePanel() { document.getElementById('ovrpanel')?.remove(); }
+
+function openOverridePanel(id, anchor) {
+  closeOverridePanel();
+  cfg.overrides = cfg.overrides || {};
+  const o = (cfg.overrides[id] = cfg.overrides[id] || {});
+  const p = document.createElement('div');
+  p.id = 'ovrpanel';
+  p.innerHTML = `
+    <div class="ovrtitle">${id} · 外观自定义 Appearance</div>
+    <div class="ovrrow"><span>前景色 Text</span><input type="color" data-k="color"><button data-clear="color">默认</button></div>
+    <div class="ovrrow"><span>底色 Pill BG</span><input type="color" data-k="bg"><button data-clear="bg">默认</button></div>
+    <div class="ovrrow"><span>前缀 Label</span><input type="text" data-k="label" placeholder="默认前缀"><button data-clear="label">默认</button></div>
+    <div class="ovrhint">前缀留空 = 去掉该胶囊前缀（比全局紧凑模式更细）/ empty label strips the prefix for this pill only</div>
+    <div class="ovrrow"><label class="ck"><input type="checkbox" data-k="bold"> 加粗 Bold</label>
+      <span style="flex:1"></span><button id="ovreset">全部重置 Reset</button><button id="ovclose">完成 Done</button></div>`;
+  document.body.appendChild(p);
+  const r = anchor.getBoundingClientRect();
+  p.style.left = Math.min(r.left, innerWidth - 360) + 'px';
+  p.style.top = (r.bottom + 8) + 'px';
+
+  const fg = p.querySelector('input[data-k=color]'), bg = p.querySelector('input[data-k=bg]');
+  const lb = p.querySelector('input[data-k=label]'), bd = p.querySelector('input[data-k=bold]');
+  fg.value = o.color || '#cdd6f4';
+  bg.value = o.bg || '#313244';
+  lb.value = o.label ?? '';
+  bd.checked = !!o.bold;
+
+  let deb = null;
+  const commit = () => {
+    if (!Object.keys(o).length) delete cfg.overrides[id];
+    document.querySelectorAll(`.chip[data-seg="${id}"] .swatch`).forEach(s => {
+      s.style.background = o.color || 'transparent';
+      s.classList.toggle('active', !!Object.keys(o).length);
+    });
+    clearTimeout(deb); deb = setTimeout(refresh, 200);
+  };
+  fg.oninput = () => { o.color = fg.value; commit(); };
+  bg.oninput = () => { o.bg = bg.value; commit(); };
+  lb.oninput = () => { o.label = lb.value; commit(); };
+  bd.onchange = () => { if (bd.checked) o.bold = true; else delete o.bold; commit(); };
+  p.querySelectorAll('button[data-clear]').forEach(b => b.onclick = () => {
+    delete o[b.dataset.clear];
+    if (b.dataset.clear === 'label') lb.value = '';
+    commit();
+  });
+  p.querySelector('#ovreset').onclick = () => {
+    for (const k of Object.keys(o)) delete o[k];
+    lb.value = ''; bd.checked = false; commit();
+  };
+  p.querySelector('#ovclose').onclick = closeOverridePanel;
+  setTimeout(() => document.addEventListener('click', function h(e) {
+    if (!p.contains(e.target)) { closeOverridePanel(); document.removeEventListener('click', h); }
+  }));
+}
+
+// 自定义插槽编辑器
+function drawSlots() {
+  const box = document.getElementById('slots');
+  box.innerHTML = '';
+  (cfg.slots || []).forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'slotrow';
+    row.innerHTML = `
+      <input type="text" class="sname" placeholder="名字 name">
+      <select><option value="text">文本 text</option><option value="cmd">命令 cmd</option></select>
+      <input type="text" class="sval" placeholder="内容 content">
+      <input type="color" title="插槽颜色 slot color">
+      <button class="del">删除 Del</button>`;
+    const name = row.querySelector('.sname'), val = row.querySelector('.sval');
+    const sel = row.querySelector('select'), col = row.querySelector('input[type=color]'), del = row.querySelector('.del');
+    name.value = s.name || '';
+    const isCmd = !s.text && !!s.command;
+    sel.value = isCmd ? 'cmd' : 'text';
+    val.value = isCmd ? (s.command || '') : (s.text || '');
+    col.value = /^#[0-9a-fA-F]{6}$/.test(s.color || '') ? s.color : '#f5c2e7';
+    let deb = null;
+    const sync = immediate => {
+      const oldId = 'slot:' + s.name;
+      s.name = name.value.trim();
+      if (sel.value === 'cmd') { s.command = val.value; s.text = ''; }
+      else { s.text = val.value; s.command = ''; }
+      s.color = col.value;
+      const newId = 'slot:' + s.name;
+      if (oldId !== newId) cfg.lines = cfg.lines.map(r => r.map(x => x === oldId ? newId : x));
+      clearTimeout(deb);
+      deb = setTimeout(() => { drawLines(); refresh(); }, immediate ? 0 : 400);
+    };
+    name.oninput = () => sync(false); val.oninput = () => sync(false);
+    sel.onchange = () => sync(true); col.oninput = () => sync(false);
+    del.onclick = () => {
+      const id = 'slot:' + s.name;
+      cfg.slots.splice(i, 1);
+      cfg.lines = cfg.lines.map(r => r.filter(x => x !== id));
+      drawSlots(); drawLines(); refresh();
+    };
+    box.appendChild(row);
+  });
+}
+
 function chip(id) {
   const c = document.createElement('span');
   c.className = 'chip'; c.draggable = true; c.dataset.seg = id;
-  c.textContent = id;
+  const isSlot = id.startsWith('slot:');
+  c.textContent = isSlot ? id.slice(5) : id;
   const info = SEG_INFO[id];
-  if (info) {
+  if (isSlot) {
+    const z = document.createElement('span');
+    z.className = 'zh'; z.textContent = '插槽';
+    c.appendChild(z);
+    c.title = '自定义插槽（内容与颜色在「自定义」卡片编辑）/ custom slot — edit in the Custom card';
+  } else if (info) {
     const z = document.createElement('span');
     z.className = 'zh'; z.textContent = info.zh;
     c.appendChild(z);
+    c.title = segTip(id);
+  } else {
+    c.title = segTip(id);
   }
-  c.title = segTip(id);
+  // 色点 = 外观面板入口：前景/底色/前缀/加粗全可改；右键快捷全部重置
+  const sw = document.createElement('span');
+  sw.className = 'swatch';
+  const ovr = (cfg.overrides || {})[id];
+  sw.style.background = (ovr && ovr.color) || 'transparent';
+  if (ovr && Object.keys(ovr).length) sw.classList.add('active');
+  sw.title = '点击自定义外观（颜色/底色/前缀/加粗），右键全部重置 / click to customize, right-click to reset';
+  sw.onclick = e => { e.stopPropagation(); openOverridePanel(id, sw); };
+  sw.oncontextmenu = e => {
+    e.preventDefault(); e.stopPropagation();
+    delete cfg.overrides[id];
+    sw.style.background = 'transparent'; sw.classList.remove('active');
+    refresh();
+  };
+  c.appendChild(sw);
   c.addEventListener('dragstart', e => {
     dragging = c; dropped = false;
     e.dataTransfer.effectAllowed = 'move';
@@ -518,6 +675,19 @@ function drawLines() {
     pal.appendChild(tag);
     idle.forEach(id => pal.appendChild(chip(id)));
   });
+  // 自定义插槽单列一组
+  const idleSlots = (cfg.slots || [])
+    .filter(s => s.name)
+    .map(s => 'slot:' + s.name)
+    .filter(id => !used.has(id));
+  if (idleSlots.length) {
+    idleCount += idleSlots.length;
+    const tag = document.createElement('span');
+    tag.className = 'grouptag';
+    tag.textContent = '自定义插槽 Custom Slots';
+    pal.appendChild(tag);
+    idleSlots.forEach(id => pal.appendChild(chip(id)));
+  }
   if (!idleCount) pal.innerHTML = '<span class="hint">全部 segment 已启用</span>';
   bindDrop(pal);
 }
@@ -555,9 +725,16 @@ function bindControls() {
 (async () => {
   const st = await api('/api/state');
   cfg = st.config; allSegs = st.segments.sort();
+  cfg.slots = cfg.slots || [];
+  cfg.overrides = cfg.overrides || {};
   const th = document.getElementById('theme');
   st.themes.sort().forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; th.appendChild(o); });
   bindControls();
+  drawSlots();
+  document.getElementById('addslot').onclick = () => {
+    cfg.slots.push({ name: 'slot' + (cfg.slots.length + 1), text: '', command: '', color: '#f5c2e7' });
+    drawSlots(); drawLines();
+  };
   drawLines();
   drawLegend();
   drawPreview(st.preview);
