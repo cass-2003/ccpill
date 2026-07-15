@@ -15,6 +15,7 @@ type Config struct {
 	Theme   string     `toml:"theme" json:"theme"`
 	Pills   bool       `toml:"pills" json:"pills"`       // 胶囊背景开关（设计定案：可一键关闭）
 	IconSet string     `toml:"icon_set" json:"icon_set"` // nerd | unicode | ascii
+	Caps    string     `toml:"caps" json:"caps"`         // auto | round | flat（胶囊圆角端帽，与图标集独立）
 	Lines   [][]string `toml:"lines" json:"lines"`       // 1-3 行，每行有序 segment ID 列表
 	// 预警（PRD §3.3）
 	DailyBudget  float64 `toml:"daily_budget" json:"daily_budget"`     // 日花费预算线（美元，0=不启用）

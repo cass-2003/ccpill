@@ -97,6 +97,12 @@
           <option value="unicode">Unicode 安全版（平角）/ safe symbols, square pills</option>
           <option value="ascii">纯 ASCII 版 / plain text</option>
         </select></div>
+      <div class="ctl"><label>胶囊端帽 Pill Caps</label>
+        <select id="caps">
+          <option value="">自动（nerd 档圆角）/ auto: round with nerd</option>
+          <option value="round">圆角（需 Powerline 字形）/ rounded</option>
+          <option value="flat">平角矩形 / square</option>
+        </select></div>
       <div class="ctl"><label>胶囊背景 Pill Background</label>
         <label class="toggle"><input type="checkbox" id="pills"><span class="knob"></span><span id="pillstate"></span></label></div>
     </div>
@@ -241,6 +247,7 @@ function drawPreview(p) {
         s.className = 'pl';
         s.style.background = pill.warn ? t.warn : t.pill_bg;
         s.style.color = pill.warn ? t.warn_fg : pill.fg;
+        if (!p.round) s.style.borderRadius = '4px'; // 平角端帽时预览同步方形
       } else {
         s.style.color = pill.warn ? t.warn : pill.fg;
         if (i > 0) {
@@ -372,11 +379,13 @@ function drawLines() {
 }
 
 function bindControls() {
-  const th = document.getElementById('theme'), ic = document.getElementById('iconset'), pl = document.getElementById('pills');
+  const th = document.getElementById('theme'), ic = document.getElementById('iconset'), pl = document.getElementById('pills'), cp = document.getElementById('caps');
   th.value = cfg.theme; ic.value = cfg.icon_set; pl.checked = cfg.pills;
+  cp.value = (cfg.caps === 'round' || cfg.caps === 'flat') ? cfg.caps : '';
   document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off';
   th.onchange = () => { cfg.theme = th.value; refresh(); };
   ic.onchange = () => { cfg.icon_set = ic.value; refresh(); };
+  cp.onchange = () => { cfg.caps = cp.value; refresh(); };
   pl.onchange = () => { cfg.pills = pl.checked; document.getElementById('pillstate').textContent = cfg.pills ? '开 On' : '关 Off'; refresh(); };
   const ct = document.getElementById('customtext'), cc = document.getElementById('customcmd');
   ct.value = cfg.custom_text || ''; cc.value = cfg.custom_command || '';

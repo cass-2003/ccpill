@@ -124,6 +124,7 @@ type themeJSON struct {
 func previewPayload(cfg config.Config, status *input.Status, real bool) map[string]any {
 	t := theme.Get(cfg.Theme)
 	ic := render.Icons(cfg.IconSet)
+	capL, _ := render.CapGlyphs(cfg.Caps, cfg.IconSet)
 	lines := make([][]pillJSON, 0, 3)
 	sample := []string{} // 本次以示例数据渲染的 segment（条件未满足）
 	for _, row := range compose.Detail(cfg, status) {
@@ -144,6 +145,7 @@ func previewPayload(cfg config.Config, status *input.Status, real bool) map[stri
 		"lines":  lines,
 		"sample": sample, // 已启用但条件未满足、预览中以示例数据占位的 segment
 		"theme":  themeJSON{Name: t.Name, PillBG: t.PillBG.Hex(), Sep: t.Sep.Hex(), Warn: t.Warn.Hex(), WarnFG: t.WarnFG.Hex()},
+		"round":  capL != "", // 终端胶囊是否圆角端帽（预览同步形状）
 		"real":   real,
 	}
 }

@@ -80,6 +80,8 @@ version = 1
 theme = "catppuccin-mocha"   # 或 tokyo-night
 pills = true                  # false = 无胶囊背景，彩色文字 + │ 分隔
 icon_set = "nerd"             # nerd / unicode / ascii
+caps = "auto"                 # auto / round / flat —— 胶囊圆角端帽，与图标集独立
+                              # round 需字体含 Powerline 半圆字形（Nerd Font 或 Cascadia Mono）
 daily_budget = 0.0            # >0 时启用今日预算红警
 git_dirty_warn = 15           # 脏文件数红警阈值
 custom_text = ""              # text segment 显示的静态文本

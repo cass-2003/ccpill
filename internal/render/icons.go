@@ -7,8 +7,6 @@ type IconSet struct {
 	Model, Branch, Cost, Clock, Flame, Warn, Dir string
 	Dirty, Ahead, Behind                         string
 	BarFull, BarEmpty                            string
-	// 胶囊圆角端帽（Powerline 半圆字形，需 Nerd Font；空 = 平角矩形）
-	CapL, CapR string
 }
 
 // nerd 档字形用显式 \u 转义（Nerd Font 打包的 Font Awesome/Powerline 码位），
@@ -19,7 +17,6 @@ var iconSets = map[string]IconSet{
 		Flame: "", Warn: "", Dir: "",
 		Dirty: "✚", Ahead: "↑", Behind: "↓",
 		BarFull: "●", BarEmpty: "○",
-		CapL: "\ue0b6", CapR: "\ue0b4", // Powerline 左/右半圆（圆角胶囊端帽）
 	},
 	"unicode": {
 		Model: "⚡", Branch: "⎇", Cost: "$", Clock: "⏱",

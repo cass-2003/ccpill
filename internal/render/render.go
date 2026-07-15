@@ -34,6 +34,23 @@ type Options struct {
 
 const reset = "\x1b[0m"
 
+// CapGlyphs 解析胶囊端帽字形。mode: "round" 强制圆角 / "flat" 强制平角 /
+// 其他值(含空)=auto：仅 nerd 图标档默认圆角。圆角用 Powerline 半圆（需字体含
+// Powerline 扩展字形，Windows Terminal 默认 Cascadia Mono 即支持）。
+func CapGlyphs(mode, iconSet string) (capL, capR string) {
+	switch mode {
+	case "round":
+		return "\ue0b6", "\ue0b4"
+	case "flat":
+		return "", ""
+	default:
+		if iconSet == "nerd" {
+			return "\ue0b6", "\ue0b4"
+		}
+		return "", ""
+	}
+}
+
 func fg(c theme.RGB) string {
 	return "\x1b[38;2;" + itoa(c.R) + ";" + itoa(c.G) + ";" + itoa(c.B) + "m"
 }

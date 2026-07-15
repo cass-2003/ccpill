@@ -73,8 +73,8 @@ func run() error {
 	cacheLastStatus(raw)
 
 	cfg := config.Load()
-	ic := render.Icons(cfg.IconSet)
-	opt := render.Options{Theme: theme.Get(cfg.Theme), PillMode: cfg.Pills, CapL: ic.CapL, CapR: ic.CapR}
+	capL, capR := render.CapGlyphs(cfg.Caps, cfg.IconSet)
+	opt := render.Options{Theme: theme.Get(cfg.Theme), PillMode: cfg.Pills, CapL: capL, CapR: capR}
 	for _, pills := range compose.Lines(cfg, status) {
 		line := render.Line(pills, opt)
 		if line != "" {
