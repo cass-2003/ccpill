@@ -21,8 +21,14 @@
   .card h2 .en { color:var(--overlay); font-weight:400; font-size:13.5px; margin-left:8px; }
   .card .sub { font-size:13.5px; color:var(--overlay); margin-bottom:20px; line-height:1.75; }
   /* 预览区 */
-  #preview { background:var(--crust); border-radius:12px; padding:20px 22px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
+  /* 预览吸顶：滚到仓库/对照表时依然可见，拖拽实时反馈 */
+  #previewcard { position:sticky; top:10px; z-index:60; padding:16px 30px 14px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
+  #previewcard h2 { margin-bottom:10px; }
+  #preview { background:var(--crust); border-radius:12px; padding:16px 20px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
   #preview .pline { display:flex; gap:10px; align-items:center; padding:7px 0; white-space:nowrap; }
+  #hiddennote summary { cursor:pointer; list-style-position:inside; }
+  #hiddennote summary:hover { color:var(--text); }
+  #hiddenlist { margin-top:6px; max-height:150px; overflow-y:auto; }
   #preview .pl { border-radius:20px; padding:1px 12px; line-height:1.55; font-size:14px; }
   #preview .noplbar { display:inline-flex; gap:0; }
   #srcnote { font-size:13px; color:var(--overlay); margin-top:9px; }
@@ -78,12 +84,11 @@
 <body>
 <header><h1>💊 ccpill 配置中心</h1><span class="tag">localhost · 数据不出本机 / data never leaves this machine</span></header>
 <main>
-  <div class="card">
+  <div class="card" id="previewcard">
     <h2>实时预览<span class="en">Live Preview</span></h2>
-    <div class="sub">下方所有改动即时反映在这里，与终端渲染共用同一引擎，所见即所得。<br>Every change below renders here instantly — same engine as the terminal, WYSIWYG.</div>
     <div id="preview"></div>
     <div id="srcnote"></div>
-    <div id="hiddennote"></div>
+    <details id="hiddennote"><summary id="hiddensum"></summary><div id="hiddenlist"></div></details>
   </div>
 
   <div class="card">
@@ -312,7 +317,7 @@ function drawPreview(p) {
   drawSample(p.sample || []);
 }
 
-// 条件未满足的 segment：预览中已用示例数据占位，此处标注原因 + 布局区胶囊打「示例」标
+// 条件未满足的 segment：预览中已用示例数据占位，折叠说明原因 + 布局区胶囊打「示例」标
 function drawSample(sample) {
   const set = new Set(sample);
   document.querySelectorAll('#lines .chip').forEach(c =>
@@ -320,7 +325,9 @@ function drawSample(sample) {
   const box = document.getElementById('hiddennote');
   if (!sample.length) { box.style.display = 'none'; return; }
   box.style.display = 'block';
-  box.innerHTML = 'ℹ️ 虚线胶囊为示例数据，条件满足时才在终端真正显示（不占位）/ Dashed pills show sample data — they appear in the terminal only when their condition is met:<br>' +
+  document.getElementById('hiddensum').textContent =
+    `ℹ️ ${sample.length} 个虚线胶囊为示例数据，条件满足时才在终端显示——点开看原因 / ${sample.length} dashed pills show sample data — expand for reasons`;
+  document.getElementById('hiddenlist').innerHTML =
     sample.map(id => `<b>${id}</b> <span class="why">— ${HIDE_REASON[id] || '当前无数据 / no data right now'}</span>`).join('<br>');
 }
 
