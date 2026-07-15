@@ -160,6 +160,36 @@ func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) 
 	case "gitab":
 		return &pillJSON{Seg: id, Text: "+2 −1", FG: t.Git.Hex(), Sample: true,
 			Spans: []spanJSON{{Text: "+2", FG: t.Cost.Hex()}, {Text: " −1", FG: t.Warn.Hex()}}}
+	case "gitstatus":
+		return &pillJSON{Seg: id, Text: "S2 U1 ?3", FG: t.Git.Hex(), Sample: true,
+			Spans: []spanJSON{{Text: "S2", FG: t.Cost.Hex()}, {Text: " U1", FG: t.Rate.Hex()}, {Text: " ?3", FG: t.Muted.Hex()}}}
+	case "gitstaged":
+		text, fg = "S:2", t.Cost
+	case "gitunstaged":
+		text, fg = "U:1", t.Rate
+	case "gituntracked":
+		text, fg = "?:3", t.Muted
+	case "gitconflicts":
+		text, fg = "✖1", t.Warn
+	case "gitstash":
+		text, fg = "⚑2", t.Extra
+	case "gitstate":
+		text, fg = "REBASE", t.Warn
+	case "gitrepo":
+		text, fg = "my-repo", t.Dir
+	case "gitdiff":
+		return &pillJSON{Seg: id, Text: "+42 −10", FG: t.Git.Hex(), Sample: true,
+			Spans: []spanJSON{{Text: "+42", FG: t.Cost.Hex()}, {Text: " −10", FG: t.Warn.Hex()}}}
+	case "gitins":
+		text, fg = "+42", t.Cost
+	case "gitdel":
+		text, fg = "−10", t.Warn
+	case "gittag":
+		text, fg = "v0.2.0", t.Extra
+	case "gitage":
+		text, fg = L("commit ")+"3h", t.Clock
+	case "gitremote":
+		text, fg = "owner/repo", t.Muted
 	case "blockpct":
 		text, fg = L("5h ")+"34%", t.Rate
 	case "blocktime":

@@ -35,7 +35,7 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 46 个 Segment
+## 60 个 Segment
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -67,6 +67,25 @@ go build -o ccpill.exe .
 | `email` | 登录账号邮箱 | `~/.claude.json`（5min 缓存） |
 | `text` | 自定义静态文本 | config `custom_text` |
 | `cmd` | 自定义命令输出首行（1s 超时，10s 缓存） | config `custom_command` |
+
+### Git 全家桶（对齐 ccstatusline 28 个 git widget + claude-powerline 独有项）
+
+| ID | 显示 | 说明 |
+|----|------|------|
+| `gitstatus` | `S2 U1 ?3 ✖1` / 干净时 `✓` | 工作区总览：S 暂存(绿) U 未暂存(橙) ? 未跟踪(灰) ✖ 冲突(红) |
+| `gitstaged` / `gitunstaged` / `gituntracked` | `S:2` / `U:1` / `?:3` | 单项文件计数，为零隐藏 |
+| `gitconflicts` | `✖1`（红警） | 合并冲突文件数 |
+| `gitstash` | `⚑2` | stash 条数（porcelain `--show-stash`，零额外子进程） |
+| `gitstate` | `REBASE`（红警） | 进行中的 rebase/merge/cherry-pick/bisect/revert（纯文件系统探测） |
+| `gitdiff` | `+42 −10`（+绿 −红） | 相对 HEAD 的未提交增删行数（`diff --shortstat`，惰性） |
+| `gitins` / `gitdel` | `+42` / `−10` | 增删行拆分件 |
+| `gittag` | `v0.2.0` | 最近 tag（`describe --tags --abbrev=0`，惰性） |
+| `gitage` | `commit 3h` | 距上次 commit 时长（`log -1 --format=%ct`，惰性） |
+| `gitrepo` | `my-repo` | 仓库根目录名（walk-up 找 `.git`，支持 worktree 重定向，零子进程） |
+| `gitremote` | `owner/repo` | origin 远程解析（https/ssh 两种 URL 格式） |
+
+> 轻数据（staged/unstaged/untracked/conflicts/stash/upstream）全部来自原有 porcelain v2 **单次采集顺手解析**，零额外开销；
+> 重数据（diff 行数/tag/age/remote）各自惰性——不拖进布局就一个子进程都不跑。
 
 ### 细粒度拆分件（18 个）
 

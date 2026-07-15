@@ -4,6 +4,7 @@ package segment
 
 import (
 	"sort"
+	"time"
 
 	"ccpill/internal/config"
 	"ccpill/internal/gitinfo"
@@ -26,6 +27,20 @@ type Context struct {
 
 	usageOnce bool
 	usageSum  usage.Summary
+
+	// git 扩展信息：各自惰性，只有对应 segment 启用才付出采集开销
+	gitDiffOnce   bool
+	gitDiff       gitinfo.DiffStat
+	gitTagOnce    bool
+	gitTag        string
+	gitAgeOnce    bool
+	gitAge        time.Duration
+	gitAgeOK      bool
+	gitRemoteOnce bool
+	gitRemote     string
+	gitFSOnce     bool // FindRoot + State（纯文件系统）
+	gitRoot       string
+	gitState      string
 }
 
 // L 返回文字前缀；紧凑模式（config minimal）下为空串，只留数值与图标。
@@ -45,18 +60,76 @@ func (c *Context) Usage() usage.Summary {
 	return c.usageSum
 }
 
+// gitDir 解析 git 采集的工作目录（stdin workspace 优先）。
+func (c *Context) gitDir() string {
+	dir := c.Status.Workspace.CurrentDir
+	if dir == "" {
+		dir = c.Status.CWD
+	}
+	return dir
+}
+
 // Git 惰性采集 git 信息（仅第一次调用真正跑 git 子进程）。
 func (c *Context) Git() gitinfo.Info {
 	if !c.gitOnce {
-		dir := c.Status.Workspace.CurrentDir
-		if dir == "" {
-			dir = c.Status.CWD
-		}
-		c.git = gitinfo.Collect(dir)
+		c.git = gitinfo.Collect(c.gitDir())
 		c.gitOnce = true
 	}
 	return c.git
 }
+
+// GitDiff 惰性统计相对 HEAD 的未提交增删行数。
+func (c *Context) GitDiff() gitinfo.DiffStat {
+	if !c.gitDiffOnce {
+		c.gitDiff = gitinfo.Diff(c.gitDir())
+		c.gitDiffOnce = true
+	}
+	return c.gitDiff
+}
+
+// GitTag 惰性取最近 tag。
+func (c *Context) GitTag() string {
+	if !c.gitTagOnce {
+		c.gitTag = gitinfo.Tag(c.gitDir())
+		c.gitTagOnce = true
+	}
+	return c.gitTag
+}
+
+// GitAge 惰性取距上次 commit 的时长。
+func (c *Context) GitAge() (time.Duration, bool) {
+	if !c.gitAgeOnce {
+		c.gitAge, c.gitAgeOK = gitinfo.CommitAge(c.gitDir())
+		c.gitAgeOnce = true
+	}
+	return c.gitAge, c.gitAgeOK
+}
+
+// GitRemote 惰性取 origin 的 owner/repo。
+func (c *Context) GitRemote() string {
+	if !c.gitRemoteOnce {
+		c.gitRemote = gitinfo.Remote(c.gitDir())
+		c.gitRemoteOnce = true
+	}
+	return c.gitRemote
+}
+
+// gitFS 惰性做一次文件系统探测（仓库根 + 进行中操作，零子进程）。
+func (c *Context) gitFS() (root, state string) {
+	if !c.gitFSOnce {
+		var gd string
+		c.gitRoot, gd = gitinfo.FindRoot(c.gitDir())
+		c.gitState = gitinfo.State(gd)
+		c.gitFSOnce = true
+	}
+	return c.gitRoot, c.gitState
+}
+
+// GitRepoRoot 返回仓库根目录路径（非仓库为空串）。
+func (c *Context) GitRepoRoot() string { root, _ := c.gitFS(); return root }
+
+// GitState 返回进行中的多步操作名（MERGE/REBASE/…），无则空串。
+func (c *Context) GitState() string { _, state := c.gitFS(); return state }
 
 // Segment 是一个 widget：返回 nil 表示本次无内容不渲染。
 type Segment interface {

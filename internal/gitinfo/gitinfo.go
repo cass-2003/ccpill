@@ -10,12 +10,19 @@ import (
 )
 
 type Info struct {
-	IsRepo bool
-	Branch string
-	SHA    string // HEAD 完整 oid（porcelain v2 branch.oid；初始仓库为空）
-	Ahead  int
-	Behind int
-	Dirty  int // 未提交变更条目数（含未跟踪）
+	IsRepo   bool
+	Branch   string
+	SHA      string // HEAD 完整 oid（porcelain v2 branch.oid；初始仓库为空）
+	Upstream string // 上游分支（如 origin/main；未设上游为空）
+	Ahead    int
+	Behind   int
+	Dirty    int // 未提交变更条目数（含未跟踪）
+	// 工作区分类计数（porcelain v2 同一次输出解析，零额外子进程）
+	Staged    int // 暂存区有改动的条目（XY 的 X 位）
+	Unstaged  int // 工作区有改动的条目（XY 的 Y 位）
+	Untracked int // 未跟踪文件
+	Conflicts int // 冲突（unmerged）条目
+	Stash     int // stash 条数（--show-stash 头部）
 }
 
 const timeout = 500 * time.Millisecond
@@ -28,7 +35,7 @@ func Collect(dir string) Info {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "git", "--no-optional-locks", "-C", dir,
-		"status", "--porcelain=v2", "--branch")
+		"status", "--porcelain=v2", "--branch", "--show-stash")
 	out, err := cmd.Output()
 	if err != nil {
 		return Info{}
@@ -59,13 +66,38 @@ func parsePorcelainV2(out string) Info {
 					info.Behind = n
 				}
 			}
+		case strings.HasPrefix(line, "# branch.upstream "):
+			info.Upstream = strings.TrimPrefix(line, "# branch.upstream ")
+		case strings.HasPrefix(line, "# stash "):
+			info.Stash = atoi(strings.TrimPrefix(line, "# stash "))
 		case line == "" || strings.HasPrefix(line, "#"):
 			// 其他头部行忽略
 		default:
 			info.Dirty++
+			classifyEntry(line, &info)
 		}
 	}
 	return info
+}
+
+// classifyEntry 按 porcelain v2 条目类型归类计数。
+// 格式：`1 XY ...` 普通变更 / `2 XY ...` 重命名 / `u ...` 冲突 / `? path` 未跟踪。
+func classifyEntry(line string, info *Info) {
+	switch line[0] {
+	case '1', '2':
+		if len(line) >= 4 {
+			if line[2] != '.' {
+				info.Staged++
+			}
+			if line[3] != '.' {
+				info.Unstaged++
+			}
+		}
+	case 'u':
+		info.Conflicts++
+	case '?':
+		info.Untracked++
+	}
 }
 
 func atoi(s string) int {
