@@ -14,7 +14,8 @@ import (
 	"github.com/cass-2003/ccpill/internal/webui"
 )
 
-const version = "0.1.0-dev"
+// version 由 release 构建注入：go build -ldflags "-X main.version=v0.2.0"
+var version = "dev"
 
 func main() {
 	if len(os.Args) > 1 {
