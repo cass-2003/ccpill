@@ -4,7 +4,6 @@ package segment
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"ccpill/internal/render"
@@ -213,14 +212,22 @@ func (gitabSeg) Render(c *Context) *render.Pill {
 	if !g.IsRepo || (g.Ahead == 0 && g.Behind == 0) {
 		return nil
 	}
-	var parts []string
+	// 色彩即语义：+领先 绿 / −落后 红（不用箭头图标）
+	p := &render.Pill{Color: c.Theme.Git}
 	if g.Ahead > 0 {
-		parts = append(parts, fmt.Sprintf("%s%d", c.Icons.Ahead, g.Ahead))
+		p.Spans = append(p.Spans, render.Span{Text: fmt.Sprintf("+%d", g.Ahead), Color: c.Theme.Cost})
 	}
 	if g.Behind > 0 {
-		parts = append(parts, fmt.Sprintf("%s%d", c.Icons.Behind, g.Behind))
+		t := fmt.Sprintf("−%d", g.Behind)
+		if len(p.Spans) > 0 {
+			t = " " + t
+		}
+		p.Spans = append(p.Spans, render.Span{Text: t, Color: c.Theme.Warn})
 	}
-	return &render.Pill{Text: strings.Join(parts, " "), Color: c.Theme.Git}
+	for _, s := range p.Spans {
+		p.Text += s.Text
+	}
+	return p
 }
 
 // ---- block 拆分（仅 stdin 官方数据） ----

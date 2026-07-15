@@ -40,12 +40,29 @@ func loadStatus() (*input.Status, bool) {
 	return s, false
 }
 
+type spanJSON struct {
+	Text string `json:"text"`
+	FG   string `json:"fg"`
+}
+
 type pillJSON struct {
-	Seg    string `json:"seg"`
-	Text   string `json:"text"`
-	FG     string `json:"fg"`
-	Warn   bool   `json:"warn"`
-	Sample bool   `json:"sample"` // true = 条件未满足，以示例数据占位展示
+	Seg    string     `json:"seg"`
+	Text   string     `json:"text"`
+	FG     string     `json:"fg"`
+	Warn   bool       `json:"warn"`
+	Sample bool       `json:"sample"`          // true = 条件未满足，以示例数据占位展示
+	Spans  []spanJSON `json:"spans,omitempty"` // 胶囊内多色片段（如 gitab 的 +绿/−红）
+}
+
+func spansJSON(spans []render.Span) []spanJSON {
+	if len(spans) == 0 {
+		return nil
+	}
+	out := make([]spanJSON, len(spans))
+	for i, s := range spans {
+		out[i] = spanJSON{Text: s.Text, FG: s.Color.Hex()}
+	}
+	return out
 }
 
 // samplePill 为条件显示类 segment 生成示例胶囊（仅 Web 预览用，终端不渲染）。
@@ -141,7 +158,8 @@ func samplePill(id string, cfg config.Config, t theme.Theme, ic render.IconSet) 
 	case "gitchanges":
 		text, fg = ic.Dirty+"3", t.Git
 	case "gitab":
-		text, fg = ic.Ahead+"2 "+ic.Behind+"1", t.Git
+		return &pillJSON{Seg: id, Text: "+2 −1", FG: t.Git.Hex(), Sample: true,
+			Spans: []spanJSON{{Text: "+2", FG: t.Cost.Hex()}, {Text: " −1", FG: t.Warn.Hex()}}}
 	case "blockpct":
 		text, fg = L("5h ")+"34%", t.Rate
 	case "blocktime":
@@ -186,7 +204,7 @@ func previewPayload(cfg config.Config, status *input.Status, real bool) map[stri
 		line := make([]pillJSON, 0, len(row))
 		for _, it := range row {
 			if it.Pill != nil {
-				line = append(line, pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Warn: it.Pill.Level == render.Warn})
+				line = append(line, pillJSON{Seg: it.ID, Text: it.Pill.Text, FG: it.Pill.Color.Hex(), Warn: it.Pill.Level == render.Warn, Spans: spansJSON(it.Pill.Spans)})
 				continue
 			}
 			if sp := samplePill(it.ID, cfg, t, ic); sp != nil {

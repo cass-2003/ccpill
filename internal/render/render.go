@@ -17,11 +17,18 @@ const (
 	Warn
 )
 
+// Span 是胶囊内的一个彩色片段，供同一胶囊内多前景色（如 gitab 的 +绿/−红）。
+type Span struct {
+	Text  string
+	Color theme.RGB
+}
+
 // Pill 是一颗待渲染的胶囊。
 type Pill struct {
 	Text  string
 	Color theme.RGB // Normal 时的前景色
 	Level Level
+	Spans []Span // 非空时逐段着色渲染；Text 仍需填完整文本（Warn 反色与回退场景用）
 }
 
 // Options 控制渲染形态。
@@ -97,13 +104,28 @@ func renderPill(b *strings.Builder, p Pill, opt Options) {
 	if opt.CapL != "" {
 		b.WriteString(fg(pillBG) + opt.CapL + reset)
 	}
-	b.WriteString(bg(pillBG) + fg(textFG) + " " + p.Text + " " + reset)
+	b.WriteString(bg(pillBG) + fg(textFG) + " ")
+	if len(p.Spans) > 0 && p.Level != Warn { // Warn 反色时统一用 WarnFG 保证红底可读
+		for _, s := range p.Spans {
+			b.WriteString(fg(s.Color) + s.Text)
+		}
+	} else {
+		b.WriteString(p.Text)
+	}
+	b.WriteString(" " + reset)
 	if opt.CapR != "" {
 		b.WriteString(fg(pillBG) + opt.CapR + reset)
 	}
 }
 
 func renderPlain(b *strings.Builder, p Pill, t theme.Theme) {
+	if len(p.Spans) > 0 && p.Level != Warn {
+		for _, s := range p.Spans {
+			b.WriteString(fg(s.Color) + s.Text)
+		}
+		b.WriteString(reset)
+		return
+	}
 	c := p.Color
 	if p.Level == Warn {
 		c = t.Warn

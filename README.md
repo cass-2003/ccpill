@@ -77,7 +77,7 @@ go build -o ccpill.exe .
 | `model` | `modelname`（仅模型名）· `think`（仅思考等级） |
 | `context` | `ctxbar`（仅进度条）· `ctxpct`（仅百分比）· `ctxlen`（上下文 token 数） |
 | `tokens` | `tokin` · `tokout` · `tokcache`（缓存读）· `toktotal`（全部合计） |
-| `git` | `gitbranch`（仅分支）· `gitchanges`（仅脏文件数）· `gitab`（仅 ahead/behind） |
+| `git` | `gitbranch`（仅分支）· `gitchanges`（仅脏文件数）· `gitab`（相对远程 `+领先`绿/`−落后`红） |
 | `block` | `blockpct`（仅已用%）· `blocktime`（仅倒计时） |
 | `cpumem` | `cpu` · `mem` |
 | `style` | `outstyle`（仅风格名）· `vim`（仅 vim 模式） |

@@ -196,7 +196,7 @@ const SEG_INFO = {
   toktotal: { zh:'总 token',  en:'Total Tokens',   dzh:'本会话全部 token 合计（输入+输出+缓存）',                     den:'All session tokens combined (in + out + cache)' },
   gitbranch:{ zh:'分支名',    en:'Git Branch',     dzh:'仅分支名（git 的拆分件）',                                   den:'Branch name only (split from git)' },
   gitchanges:{ zh:'脏文件数', en:'Git Changes',    dzh:'仅未提交变更数（git 的拆分件），超阈值红警',                  den:'Dirty file count only (split from git), warns over threshold' },
-  gitab:    { zh:'领先/落后', en:'Ahead / Behind', dzh:'仅 ahead/behind 计数（git 的拆分件），无差异时隐藏',          den:'Ahead/behind counts only (split from git), hidden when in sync' },
+  gitab:    { zh:'领先/落后', en:'Ahead / Behind', dzh:'相对远程分支：+领先绿 / −落后红（git 的拆分件），无差异时隐藏', den:'Vs upstream: +ahead green / −behind red (split from git), hidden when in sync' },
   blockpct: { zh:'5h 用量%',  en:'5h Used %',      dzh:'仅 5h 窗口已用百分比（block 的拆分件）',                     den:'5h window used % only (split from block)' },
   blocktime:{ zh:'5h 倒计时', en:'5h Countdown',   dzh:'仅 5h 窗口重置倒计时（block 的拆分件）',                     den:'5h window reset countdown only (split from block)' },
   cpu:      { zh:'CPU',      en:'CPU Only',       dzh:'仅 CPU 占用（cpumem 的拆分件），≥90% 红警',                  den:'CPU usage only (split from cpumem), warns at 90%' },
@@ -292,7 +292,16 @@ function drawPreview(p) {
     if (!line.length) return;
     line.forEach((pill, i) => {
       const s = document.createElement('span');
-      s.textContent = pill.text;
+      if (pill.spans && !pill.warn) {
+        // 胶囊内多色片段（如 gitab 的 +绿/−红）
+        pill.spans.forEach(sp => {
+          const e = document.createElement('span');
+          e.textContent = sp.text; e.style.color = sp.fg;
+          s.appendChild(e);
+        });
+      } else {
+        s.textContent = pill.text;
+      }
       if (cfg.pills) {
         s.className = 'pl';
         s.style.background = pill.warn ? t.warn : t.pill_bg;
