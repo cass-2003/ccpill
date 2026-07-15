@@ -27,7 +27,9 @@ type Pill struct {
 // Options 控制渲染形态。
 type Options struct {
 	Theme    theme.Theme
-	PillMode bool // false = 无胶囊模式：彩色文字 + 细分隔线
+	PillMode bool   // false = 无胶囊模式：彩色文字 + 细分隔线
+	CapL     string // 圆角端帽字形（Nerd Font 半圆；空 = 平角矩形）
+	CapR     string
 }
 
 const reset = "\x1b[0m"
@@ -52,7 +54,7 @@ func Line(pills []Pill, opt Options) string {
 			continue
 		}
 		if opt.PillMode {
-			renderPill(&b, p, opt.Theme)
+			renderPill(&b, p, opt)
 			if i < len(pills)-1 {
 				b.WriteString(" ")
 			}
@@ -67,13 +69,21 @@ func Line(pills []Pill, opt Options) string {
 	return strings.ReplaceAll(b.String(), " ", " ")
 }
 
-func renderPill(b *strings.Builder, p Pill, t theme.Theme) {
+func renderPill(b *strings.Builder, p Pill, opt Options) {
+	t := opt.Theme
+	pillBG, textFG := t.PillBG, p.Color
 	if p.Level == Warn {
 		// 预警胶囊整体反色：红底深字
-		b.WriteString(bg(t.Warn) + fg(t.WarnFG) + " " + p.Text + " " + reset)
-		return
+		pillBG, textFG = t.Warn, t.WarnFG
 	}
-	b.WriteString(bg(t.PillBG) + fg(p.Color) + " " + p.Text + " " + reset)
+	// 圆角端帽：半圆字形以胶囊底色作前景、不带背景，与色块拼成圆角胶囊
+	if opt.CapL != "" {
+		b.WriteString(fg(pillBG) + opt.CapL + reset)
+	}
+	b.WriteString(bg(pillBG) + fg(textFG) + " " + p.Text + " " + reset)
+	if opt.CapR != "" {
+		b.WriteString(fg(pillBG) + opt.CapR + reset)
+	}
 }
 
 func renderPlain(b *strings.Builder, p Pill, t theme.Theme) {
