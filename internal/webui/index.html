@@ -25,7 +25,6 @@
   #previewcard { position:sticky; top:10px; z-index:60; padding:16px 30px 14px; box-shadow:0 10px 30px rgba(0,0,0,.5); }
   /* 拖拽中吸顶预览不参与命中：避免挡住靠近页面顶部的行 */
   .dragmode #previewcard { pointer-events:none; opacity:.45; }
-  #previewcard h2 { margin-bottom:10px; }
   #preview { background:var(--crust); border-radius:12px; padding:16px 20px; font-family:"Cascadia Code",Consolas,monospace; font-size:15px; overflow-x:auto; }
   #preview .pline { display:flex; gap:10px; align-items:center; padding:7px 0; white-space:nowrap; }
   #hiddennote summary { cursor:pointer; list-style-position:inside; }
@@ -76,9 +75,10 @@
   #palette .grouptag { flex-basis:100%; font-size:12.5px; color:var(--overlay); margin-top:12px; }
   #palette .grouptag:first-child { margin-top:0; }
   .note { font-size:13px; color:var(--overlay); margin-top:6px; }
-  /* 保存 */
-  .savebar { display:flex; align-items:center; gap:14px; }
-  button#save { background:var(--mauve); color:var(--base); font-weight:700; border:none; border-radius:9px; padding:11px 28px; font-size:15.5px; cursor:pointer; }
+  /* 保存（在实时预览卡右上角，随吸顶常驻可见） */
+  .pvhead { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .pvhead h2 { margin-bottom:0; flex:1; }
+  button#save { background:var(--mauve); color:var(--base); font-weight:700; border:none; border-radius:9px; padding:9px 24px; font-size:15px; cursor:pointer; }
   button#save:hover { filter:brightness(1.1); }
   #savemsg { font-size:14px; color:var(--green); opacity:0; transition:.3s; }
 </style>
@@ -87,7 +87,11 @@
 <header><h1>💊 ccpill 配置中心</h1><span class="tag">localhost · 数据不出本机 / data never leaves this machine</span></header>
 <main>
   <div class="card" id="previewcard">
-    <h2>实时预览<span class="en">Live Preview</span></h2>
+    <div class="pvhead">
+      <h2>实时预览<span class="en">Live Preview</span></h2>
+      <span id="savemsg"></span>
+      <button id="save" title="保存后 Claude Code 下次刷新状态栏即生效，无需重启 / Takes effect on the next statusline refresh — no restart needed.">保存生效 Save</button>
+    </div>
     <div id="preview"></div>
     <div id="srcnote"></div>
     <details id="hiddennote"><summary id="hiddensum"></summary><div id="hiddenlist"></div></details>
@@ -144,11 +148,6 @@
     <div id="legend"></div>
   </div>
 
-  <div class="card savebar">
-    <button id="save">保存生效 Save</button>
-    <span id="savemsg"></span>
-    <span class="note">保存后 Claude Code 下次刷新状态栏即生效，无需重启 / Takes effect on the next statusline refresh — no restart needed.</span>
-  </div>
 </main>
 
 <script>
