@@ -35,7 +35,7 @@ go build -o ccpill.exe .
 
 无参数时从 stdin 读 Claude Code 状态 JSON、向 stdout 输出 ANSI 状态栏——这是 Claude Code 的调用方式，一般不用手动执行。
 
-## 28 个 Segment
+## 46 个 Segment
 
 | ID | 显示 | 数据源 |
 |----|------|--------|
@@ -67,6 +67,20 @@ go build -o ccpill.exe .
 | `email` | 登录账号邮箱 | `~/.claude.json`（5min 缓存） |
 | `text` | 自定义静态文本 | config `custom_text` |
 | `cmd` | 自定义命令输出首行（1s 超时，10s 缓存） | config `custom_command` |
+
+### 细粒度拆分件（18 个）
+
+合并型胶囊的单项版本，可自由组合排布（对齐 ccstatusline 的 widget 粒度）：
+
+| 母件 | 拆分件 |
+|------|--------|
+| `model` | `modelname`（仅模型名）· `think`（仅思考等级） |
+| `context` | `ctxbar`（仅进度条）· `ctxpct`（仅百分比）· `ctxlen`（上下文 token 数） |
+| `tokens` | `tokin` · `tokout` · `tokcache`（缓存读）· `toktotal`（全部合计） |
+| `git` | `gitbranch`（仅分支）· `gitchanges`（仅脏文件数）· `gitab`（仅 ahead/behind） |
+| `block` | `blockpct`（仅已用%）· `blocktime`（仅倒计时） |
+| `cpumem` | `cpu` · `mem` |
+| `style` | `outstyle`（仅风格名）· `vim`（仅 vim 模式） |
 
 > 费用类 segment 采用 **auto 模式**：transcript 自带 `costUSD` 直接用（老版本 Claude Code）；
 > 新版不写该字段，按 `message.model` 查内嵌定价表重算（含 5m/1h 缓存写价与缓存读价）。

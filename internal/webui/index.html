@@ -175,6 +175,25 @@ const SEG_INFO = {
   email:    { zh:'账号邮箱', en:'Account Email',   dzh:'当前登录的 Claude 账号邮箱（5 分钟缓存）',                    den:'Email of the signed-in Claude account (cached 5 min)' },
   text:     { zh:'自定义文本', en:'Custom Text',   dzh:'显示下方「自定义」区填写的静态文本',                          den:'Shows the static text from the Custom section below' },
   cmd:      { zh:'自定义命令', en:'Custom Command', dzh:'执行「自定义」区的命令并显示输出首行（1s 超时，10s 缓存）',    den:'Runs the command from the Custom section, shows first output line (1s timeout, 10s cache)' },
+  // —— 细粒度拆分件（合并型的单项版本，可自由组合）——
+  modelname:{ zh:'模型名',    en:'Model Name',     dzh:'仅模型名（model 的拆分件，不含思考等级）',                    den:'Model name only (split from model, no thinking level)' },
+  think:    { zh:'思考等级',  en:'Thinking Level', dzh:'仅思考等级 think:hi（model 的拆分件）',                      den:'Thinking effort only (split from model)' },
+  ctxbar:   { zh:'上下文条',  en:'Context Bar',    dzh:'仅上下文进度条（context 的拆分件），80/90% 同样变色',         den:'Context usage bar only (split from context), same 80/90% warning colors' },
+  ctxpct:   { zh:'上下文 %',  en:'Context %',      dzh:'仅上下文百分比（context 的拆分件）',                         den:'Context percentage only (split from context)' },
+  ctxlen:   { zh:'上下文量',  en:'Context Length', dzh:'当前上下文占用 token 数（如 ctx 89k）',                      den:'Tokens currently in context (e.g. ctx 89k)' },
+  tokin:    { zh:'输入 token', en:'Input Tokens',  dzh:'本会话输入 token（不含缓存，tokens 的拆分件）',               den:'Session input tokens, cache excluded (split from tokens)' },
+  tokout:   { zh:'输出 token', en:'Output Tokens', dzh:'本会话输出 token（tokens 的拆分件）',                        den:'Session output tokens (split from tokens)' },
+  tokcache: { zh:'缓存 token', en:'Cached Tokens', dzh:'本会话缓存读取 token（tokens 的拆分件）',                    den:'Session cache-read tokens (split from tokens)' },
+  toktotal: { zh:'总 token',  en:'Total Tokens',   dzh:'本会话全部 token 合计（输入+输出+缓存）',                     den:'All session tokens combined (in + out + cache)' },
+  gitbranch:{ zh:'分支名',    en:'Git Branch',     dzh:'仅分支名（git 的拆分件）',                                   den:'Branch name only (split from git)' },
+  gitchanges:{ zh:'脏文件数', en:'Git Changes',    dzh:'仅未提交变更数（git 的拆分件），超阈值红警',                  den:'Dirty file count only (split from git), warns over threshold' },
+  gitab:    { zh:'领先/落后', en:'Ahead / Behind', dzh:'仅 ahead/behind 计数（git 的拆分件），无差异时隐藏',          den:'Ahead/behind counts only (split from git), hidden when in sync' },
+  blockpct: { zh:'5h 用量%',  en:'5h Used %',      dzh:'仅 5h 窗口已用百分比（block 的拆分件）',                     den:'5h window used % only (split from block)' },
+  blocktime:{ zh:'5h 倒计时', en:'5h Countdown',   dzh:'仅 5h 窗口重置倒计时（block 的拆分件）',                     den:'5h window reset countdown only (split from block)' },
+  cpu:      { zh:'CPU',      en:'CPU Only',       dzh:'仅 CPU 占用（cpumem 的拆分件），≥90% 红警',                  den:'CPU usage only (split from cpumem), warns at 90%' },
+  mem:      { zh:'内存',      en:'Memory Only',    dzh:'仅内存占用（cpumem 的拆分件），≥90% 红警',                   den:'Memory usage only (split from cpumem), warns at 90%' },
+  outstyle: { zh:'风格名',    en:'Style Only',     dzh:'仅输出风格名（style 的拆分件）',                             den:'Output style name only (split from style)' },
+  vim:      { zh:'Vim 模式',  en:'Vim Mode',       dzh:'仅 vim 模式指示（style 的拆分件），未开启时隐藏',             den:'Vim mode indicator only (split from style), hidden when off' },
 };
 const segTip = id => {
   const s = SEG_INFO[id];
@@ -183,11 +202,11 @@ const segTip = id => {
 
 // segment 功能分组（对照表 + 仓库区共用；未列入的新 ID 自动归入最后一组）
 const SEG_GROUPS = [
-  { zh:'模型与上下文', en:'Model & Context',  ids:['model','context','tokens','cachehit','compact','speed','style'] },
-  { zh:'费用与限额',   en:'Cost & Limits',    ids:['cost','today','burn','block','weekly'] },
-  { zh:'Git 与工作区', en:'Git & Workspace',  ids:['git','gitsha','worktree','pr','dir','lines'] },
+  { zh:'模型与上下文', en:'Model & Context',  ids:['model','modelname','think','context','ctxbar','ctxpct','ctxlen','tokens','tokin','tokout','tokcache','toktotal','cachehit','compact','speed','style','outstyle','vim'] },
+  { zh:'费用与限额',   en:'Cost & Limits',    ids:['cost','today','burn','block','blockpct','blocktime','weekly'] },
+  { zh:'Git 与工作区', en:'Git & Workspace',  ids:['git','gitbranch','gitchanges','gitab','gitsha','worktree','pr','dir','lines'] },
   { zh:'会话与账号',   en:'Session & Account', ids:['session','sessionid','version','email'] },
-  { zh:'系统与自定义', en:'System & Custom',  ids:['clock','cpumem','mcp','api','text','cmd'] },
+  { zh:'系统与自定义', en:'System & Custom',  ids:['clock','cpumem','cpu','mem','mcp','api','text','cmd'] },
 ];
 // 按注册表补漏：未分组的 segment 兜底进最后一组，保证永不丢失
 function groupedSegs() {
@@ -228,6 +247,24 @@ const HIDE_REASON = {
   email:    '未读到登录账号信息 / no signed-in account info found',
   text:     '「自定义」区的文本为空 / custom text is empty',
   cmd:      '「自定义」区未填命令或命令无输出 / no command set, or it produced no output',
+  modelname:'会话数据未提供模型信息 / no model info in session data',
+  think:    '会话数据无思考等级 / no thinking level in session data',
+  ctxbar:   '会话数据无上下文用量 / no context usage in session data',
+  ctxpct:   '会话数据无上下文用量 / no context usage in session data',
+  ctxlen:   '会话数据无上下文用量明细 / no context usage detail in session data',
+  tokin:    '会话尚无 token 用量 / no token usage yet',
+  tokout:   '会话尚无 token 用量 / no token usage yet',
+  tokcache: '会话尚无 token 用量 / no token usage yet',
+  toktotal: '会话尚无 token 用量 / no token usage yet',
+  gitbranch:'当前目录不是 Git 仓库 / not a git repository',
+  gitchanges:'工作区干净，无未提交变更 / working tree clean',
+  gitab:    '与远程无 ahead/behind 差异 / in sync with upstream',
+  blockpct: '无 5h 窗口用量数据 / no 5h window usage data',
+  blocktime:'无 5h 窗口重置时间 / no 5h window reset time',
+  cpu:      'CPU 指标接口不可用 / CPU metrics unavailable',
+  mem:      '内存指标接口不可用 / memory metrics unavailable',
+  outstyle: '当前为默认输出风格 / using the default output style',
+  vim:      'vim 模式未开启 / vim mode is off',
 };
 
 async function api(path, body) {

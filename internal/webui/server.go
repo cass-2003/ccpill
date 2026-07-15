@@ -107,6 +107,42 @@ func samplePill(id string, t theme.Theme, ic render.IconSet) *pillJSON {
 		text, fg = "我的备注", t.Extra
 	case "cmd":
 		text, fg = "cmd 输出示例", t.Extra
+	case "modelname":
+		text, fg = ic.Model+" Fable 5", t.Model
+	case "think":
+		text, fg = "think:hi", t.Model
+	case "ctxbar":
+		text, fg = render.Bar(52, 10, ic), t.Context
+	case "ctxpct":
+		text, fg = "ctx 52%", t.Context
+	case "ctxlen":
+		text, fg = "ctx 89k", t.Context
+	case "tokin":
+		text, fg = "in 1.2M", t.Context
+	case "tokout":
+		text, fg = "out 38k", t.Context
+	case "tokcache":
+		text, fg = "cached 8.4M", t.Context
+	case "toktotal":
+		text, fg = "tok 9.9M", t.Context
+	case "gitbranch":
+		text, fg = ic.Branch+" main", t.Git
+	case "gitchanges":
+		text, fg = ic.Dirty+"3", t.Git
+	case "gitab":
+		text, fg = ic.Ahead+"2 "+ic.Behind+"1", t.Git
+	case "blockpct":
+		text, fg = "5h 34%", t.Rate
+	case "blocktime":
+		text, fg = "⏳ 2h10m", t.Rate
+	case "cpu":
+		text, fg = "CPU 12%", t.Clock
+	case "mem":
+		text, fg = "MEM 45%", t.Clock
+	case "outstyle":
+		text, fg = "concise", t.Extra
+	case "vim":
+		text, fg = "vim:i", t.Extra
 	default:
 		return nil
 	}

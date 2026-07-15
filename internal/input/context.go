@@ -30,6 +30,21 @@ func (s *Status) ContextPercent() (float64, bool) {
 }
 
 // EffortLevel 返回思考等级；区分「显式无等级」与「未知」（拆解 01 §2.5）。
+// ContextUsedTokens 返回当前上下文占用 token 数（output 不占下一轮输入，故不计）。
+func (s *Status) ContextUsedTokens() (float64, bool) {
+	cw := s.ContextWindow
+	if cw == nil {
+		return 0, false
+	}
+	if d := cw.CurrentUsage.Detail; d != nil {
+		return d.InputTokens.Value + d.CacheCreationTokens.Value + d.CacheReadTokens.Value, true
+	}
+	if cw.CurrentUsage.Total.Valid {
+		return cw.CurrentUsage.Total.Value, true
+	}
+	return 0, false
+}
+
 func (s *Status) EffortLevel() string {
 	if s.Effort == nil || s.Effort.Level == nil {
 		return ""
