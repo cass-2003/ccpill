@@ -33,7 +33,7 @@
 
 ```bash
 # 任选其一：npm 用户
-npx ccpill --install
+npx @cassandra0032/ccpill --install
 ```
 
 ```powershell

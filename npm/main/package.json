@@ -1,5 +1,5 @@
 {
-  "name": "ccpill",
+  "name": "@cassandra0032/ccpill",
   "version": "0.0.0",
   "description": "A pill-styled, blazing-fast statusline for Claude Code. Written in Go.",
   "bin": { "ccpill": "bin/ccpill.js" },
