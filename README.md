@@ -46,7 +46,7 @@ irm https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.ps1 
 curl -fsSL https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.sh | bash
 ```
 
-脚本自动完成三步：Releases 预编译二进制（暂无时用本机 Go `go install` 源码直装，二选一）→ 落到 `~/.claude/ccpill/bin/` → 写入 Claude Code `settings.json`（自动备份原配置）。重启 Claude Code（或开新会话）即生效。
+脚本自动完成四步：Releases 预编译二进制（暂无时用本机 Go `go install` 源码直装）→ 落到 `~/.claude/ccpill/bin/` → 写入 Claude Code `settings.json`（自动备份原配置）→ 把 `ccpill` 加进 PATH。重启 Claude Code 即见状态栏；**新开终端敲 `ccpill --config` 一键唤起 Web 配置中心**（npx 用户用 `npx @cassandra0032/ccpill --config`）。
 
 ### 手动安装
 

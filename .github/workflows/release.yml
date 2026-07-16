@@ -12,10 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 取完整历史与 tag 对象，注释内容做 release 正文
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25"
       - run: go vet ./... && go test ./...
+      - name: tag annotation as release body
+        run: git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > TAG_NOTES.md && cat TAG_NOTES.md
       - name: cross build
         run: |
           mkdir -p dist
@@ -31,6 +35,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
+          body_path: TAG_NOTES.md
           generate_release_notes: true
       - uses: actions/setup-node@v4
         with:

@@ -51,5 +51,12 @@ fi
 # 3) Write Claude Code settings.json (ccpill backs up and writes atomically)
 "$EXE" --install
 
+# 4) Symlink onto PATH so `ccpill --config` works everywhere
+LINK_DIR="$HOME/.local/bin"
+mkdir -p "$LINK_DIR"
+ln -sf "$EXE" "$LINK_DIR/ccpill"
 echo ""
-echo "Web config center:   \"$EXE\" --config"
+case ":$PATH:" in
+  *":$LINK_DIR:"*) echo "Web config center:   ccpill --config" ;;
+  *) echo "Linked $LINK_DIR/ccpill (add $LINK_DIR to your PATH, then run: ccpill --config)" ;;
+esac

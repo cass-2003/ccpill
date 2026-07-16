@@ -43,5 +43,12 @@ if (-not $installed) {
 & $exe --install
 if ($LASTEXITCODE -ne 0) { throw 'ccpill --install failed' }
 
-Write-Host ''
-Write-Host "Web config center:  & `"$exe`" --config"
+# 4) Add bin dir to user PATH so `ccpill --config` works from any new terminal
+$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+if (($userPath -split ';') -notcontains $binDir) {
+    [Environment]::SetEnvironmentVariable('Path', ($userPath.TrimEnd(';') + ';' + $binDir), 'User')
+    Write-Host "Added to user PATH: $binDir"
+    Write-Host "Open a NEW terminal, then run:  ccpill --config"
+} else {
+    Write-Host 'Web config center:  ccpill --config'
+}
