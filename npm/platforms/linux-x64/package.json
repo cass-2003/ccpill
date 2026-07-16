@@ -1,0 +1,10 @@
+{
+  "name": "ccpill-linux-x64",
+  "version": "0.0.0",
+  "description": "ccpill prebuilt binary for linux/x64",
+  "os": ["linux"],
+  "cpu": ["x64"],
+  "files": ["ccpill"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/cass-2003/ccpill.git" }
+}

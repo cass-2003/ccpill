@@ -31,6 +31,11 @@
 
 ### 一键安装（推荐）
 
+```bash
+# 任选其一：npm 用户
+npx ccpill --install
+```
+
 ```powershell
 # Windows（PowerShell）
 irm https://raw.githubusercontent.com/cass-2003/ccpill/main/scripts/install.ps1 | iex

@@ -15,3 +15,5 @@ coverage.out
 # 编辑器
 .vscode/
 .idea/
+npm-publish/
+node_modules/
