@@ -4,7 +4,13 @@
 
 ## 0. 三步上岗
 
-一键脚本（Releases 预编译优先，无则本机 Go 源码直装，装完自动写配置）：
+npm 用户一条命令（自动把二进制装到 `~/.claude/ccpill/bin/` 并写配置）：
+
+```bash
+npx @cassandra0032/ccpill --install
+```
+
+或一键脚本（Releases 预编译优先，无则本机 Go 源码直装，装完自动写配置）：
 
 ```powershell
 # Windows
